@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -25,32 +26,51 @@ import Hosting from "./pages/Hosting";
 
 const queryClient = new QueryClient();
 
+const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    // Check local storage or system preference for theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Apply theme based on storage or system preference
+    if (savedTheme === 'dark' || (savedTheme === 'system' && systemPrefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/domain-search" element={<DomainSearch />} />
-          <Route path="/transfer" element={<Transfer />} />
-          <Route path="/whois" element={<Whois />} />
-          <Route path="/appraise" element={<Appraise />} />
-          <Route path="/domain-ai" element={<DomainAI />} />
-          <Route path="/broker" element={<Broker />} />
-          <Route path="/premium" element={<Premium />} />
-          <Route path="/free-domains" element={<FreeDomains />} />
-          <Route path="/extensions" element={<Extensions />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/expiration" element={<Expiration />} />
-          <Route path="/ssl" element={<SSL />} />
-          <Route path="/sitelock" element={<SiteLock />} />
-          <Route path="/hosting" element={<Hosting />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/domain-search" element={<DomainSearch />} />
+            <Route path="/transfer" element={<Transfer />} />
+            <Route path="/whois" element={<Whois />} />
+            <Route path="/appraise" element={<Appraise />} />
+            <Route path="/domain-ai" element={<DomainAI />} />
+            <Route path="/broker" element={<Broker />} />
+            <Route path="/premium" element={<Premium />} />
+            <Route path="/free-domains" element={<FreeDomains />} />
+            <Route path="/extensions" element={<Extensions />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/expiration" element={<Expiration />} />
+            <Route path="/ssl" element={<SSL />} />
+            <Route path="/sitelock" element={<SiteLock />} />
+            <Route path="/hosting" element={<Hosting />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

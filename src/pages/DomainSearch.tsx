@@ -35,15 +35,15 @@ const DomainSearch = () => {
                   <h3 className="text-xl font-semibold">{domain.domain}</h3>
                   <div className="mt-1">
                     {domain.available ? (
-                      <Badge className="bg-domainGreen">Available</Badge>
+                      <Badge className="bg-purpleTheme-primary">Available</Badge>
                     ) : (
-                      <Badge variant="outline" className="text-gray-500">Not Available</Badge>
+                      <Badge variant="outline" className="text-muted-foreground">Not Available</Badge>
                     )}
                   </div>
                 </div>
                 
                 <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                  <p className="text-xl font-bold text-domainBlue mb-3 md:mb-0">
+                  <p className="text-xl font-bold text-purpleTheme-primary mb-3 md:mb-0">
                     {domain.price}
                   </p>
                   
@@ -53,7 +53,7 @@ const DomainSearch = () => {
                         <Heart className="mr-1 h-4 w-4" />
                         <span>Save</span>
                       </Button>
-                      <Button size="sm" className="bg-domainBlue hover:bg-domainBlue-dark flex items-center">
+                      <Button size="sm" className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary flex items-center">
                         <ShoppingCart className="mr-1 h-4 w-4" />
                         <span>Add to Cart</span>
                       </Button>
@@ -70,10 +70,10 @@ const DomainSearch = () => {
         </div>
         
         <div className="mt-8 text-center">
-          <p className="text-gray-500 mb-4">
+          <p className="text-muted-foreground mb-4">
             Didn't find what you were looking for? Try our AI Domain Generator
           </p>
-          <Button className="bg-domainBlue hover:bg-domainBlue-dark" asChild>
+          <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" asChild>
             <a href="/domain-ai">Try AI Domain Generator</a>
           </Button>
         </div>

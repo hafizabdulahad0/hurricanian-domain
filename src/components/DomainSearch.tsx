@@ -3,10 +3,16 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
-  const [extensions, setExtensions] = useState<string[]>(['.com', '.net', '.org', '.io']);
+  const [extensionChecks, setExtensionChecks] = useState({
+    '.com': true,
+    '.net': true,
+    '.org': true,
+    '.io': true
+  });
   const [isSearching, setIsSearching] = useState(false);
   
   const handleSearch = (e: React.FormEvent) => {
@@ -17,6 +23,13 @@ const DomainSearch = () => {
     setTimeout(() => {
       setIsSearching(false);
     }, 1000);
+  };
+  
+  const handleExtensionToggle = (ext: string) => {
+    setExtensionChecks(prev => ({
+      ...prev,
+      [ext]: !prev[ext]
+    }));
   };
   
   return (
@@ -33,7 +46,7 @@ const DomainSearch = () => {
           />
           <Button 
             type="submit" 
-            className="rounded-l-none bg-domainBlue hover:bg-domainBlue-dark px-6 py-6 h-auto"
+            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-6 py-6 h-auto"
             disabled={isSearching}
           >
             {isSearching ? (
@@ -51,27 +64,22 @@ const DomainSearch = () => {
         </div>
         
         <div className="mt-4 flex flex-wrap gap-3">
-          {extensions.map((ext) => (
-            <div key={ext} className="flex items-center">
-              <input
-                type="checkbox"
+          {Object.keys(extensionChecks).map((ext) => (
+            <div key={ext} className="flex items-center space-x-2">
+              <Checkbox 
                 id={`ext-${ext}`}
-                className="h-4 w-4 text-domainBlue border-gray-300 rounded focus:ring-domainBlue"
-                checked={extensions.includes(ext)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setExtensions([...extensions, ext]);
-                  } else {
-                    setExtensions(extensions.filter((item) => item !== ext));
-                  }
-                }}
+                checked={extensionChecks[ext as keyof typeof extensionChecks]}
+                onCheckedChange={() => handleExtensionToggle(ext)}
               />
-              <label htmlFor={`ext-${ext}`} className="ml-2 text-sm text-gray-600">
+              <label
+                htmlFor={`ext-${ext}`}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 {ext}
               </label>
             </div>
           ))}
-          <div className="text-sm text-domainBlue hover:underline cursor-pointer">
+          <div className="text-sm text-purpleTheme-primary hover:underline cursor-pointer">
             + More options
           </div>
         </div>

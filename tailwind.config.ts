@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,6 +62,18 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+                // Semi Dark Purple theme colors
+                purpleTheme: {
+                    primary: '#9b87f5',
+                    secondary: '#7E69AB',
+                    tertiary: '#6E59A5',
+                    dark: '#1A1F2C',
+                    neutral: '#8E9196',
+                    charcoal: '#221F26',
+                    darkGray: '#333333',
+                    black: '#000000e6',
+                },
+                // Keeping the domain colors for compatibility
                 domainBlue: {
                     DEFAULT: '#0989e3',
                     dark: '#0e5d8b',

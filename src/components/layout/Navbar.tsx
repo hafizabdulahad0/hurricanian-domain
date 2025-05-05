@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   Search, 
   Menu, 
@@ -32,13 +33,13 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className="bg-background shadow-sm sticky top-0 z-50 border-b">
       <div className="domain-container py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-domainBlue">DomainVerse</span>
+              <span className="text-2xl font-bold text-purpleTheme-primary">Hurricanian Domains</span>
             </Link>
           </div>
           
@@ -46,33 +47,33 @@ const Navbar = () => {
           <div className="hidden md:flex md:items-center md:space-x-8">
             <div className="relative group">
               <button 
-                className="flex items-center text-gray-700 hover:text-domainBlue transition-colors"
+                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
                 onClick={() => setDomainDropdownOpen(!domainDropdownOpen)}
               >
                 Domains <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               
               {/* Domain dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${domainDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
+              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${domainDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
                 <div className="py-1">
-                  <Link to="/domain-search" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Search className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/domain-search" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Search className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Domain Search</span>
                   </Link>
-                  <Link to="/transfer" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <ArrowRight className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/transfer" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <ArrowRight className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Transfer Domain</span>
                   </Link>
-                  <Link to="/whois" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <FileText className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/whois" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <FileText className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>WHOIS Lookup</span>
                   </Link>
-                  <Link to="/appraise" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <FileSearch className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/appraise" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <FileSearch className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Domain Appraisal</span>
                   </Link>
-                  <Link to="/domain-ai" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Wand2 className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/domain-ai" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Wand2 className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>AI Domain Generator</span>
                   </Link>
                 </div>
@@ -81,29 +82,29 @@ const Navbar = () => {
             
             <div className="relative group">
               <button 
-                className="flex items-center text-gray-700 hover:text-domainBlue transition-colors"
+                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
                 onClick={() => setHostingDropdownOpen(!hostingDropdownOpen)}
               >
                 Hosting <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               
               {/* Hosting dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${hostingDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
+              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${hostingDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
                 <div className="py-1">
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Server className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Server className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Shared Hosting</span>
                   </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Cloud className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Cloud className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Cloud Hosting</span>
                   </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Database className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Database className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Dedicated Servers</span>
                   </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <HardDrive className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <HardDrive className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>VPS Hosting</span>
                   </Link>
                 </div>
@@ -112,43 +113,43 @@ const Navbar = () => {
             
             <div className="relative group">
               <button 
-                className="flex items-center text-gray-700 hover:text-domainBlue transition-colors"
+                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
                 onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
               >
                 Services <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               
               {/* Services dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${servicesDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
+              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${servicesDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
                 <div className="py-1">
-                  <Link to="/broker" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Briefcase className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/broker" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Briefcase className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Domain Broker Service</span>
                   </Link>
-                  <Link to="/premium" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Star className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/premium" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Star className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Premium Domains</span>
                   </Link>
-                  <Link to="/free-domains" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <Gift className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/free-domains" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <Gift className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>Free Domains</span>
                   </Link>
-                  <Link to="/extensions" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
-                    <FileUp className="mr-3 h-5 w-5 text-domainBlue" />
+                  <Link to="/extensions" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
+                    <FileUp className="mr-3 h-5 w-5 text-purpleTheme-primary" />
                     <span>New Domain Extensions</span>
                   </Link>
                 </div>
               </div>
             </div>
             
-            <Link to="/privacy" className="text-gray-700 hover:text-domainBlue transition-colors">
+            <Link to="/privacy" className="text-foreground hover:text-purpleTheme-primary transition-colors">
               <div className="flex items-center">
                 <ShieldCheck className="mr-1 h-4 w-4" />
                 <span>Domain Privacy</span>
               </div>
             </Link>
             
-            <Link to="/ssl" className="text-gray-700 hover:text-domainBlue transition-colors">
+            <Link to="/ssl" className="text-foreground hover:text-purpleTheme-primary transition-colors">
               <div className="flex items-center">
                 <ShieldCheck className="mr-1 h-4 w-4" />
                 <span>SSL Certificates</span>
@@ -156,17 +157,19 @@ const Navbar = () => {
             </Link>
           </div>
           
-          {/* Login/Signup */}
+          {/* Login/Signup & Theme Toggle */}
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Button variant="outline" className="border-domainBlue text-domainBlue hover:bg-domainBlue hover:text-white">Log in</Button>
-            <Button className="bg-domainBlue hover:bg-domainBlue-dark">Sign up</Button>
+            <ThemeToggle />
+            <Button variant="outline" className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white">Log in</Button>
+            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">Sign up</Button>
           </div>
           
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-4">
+            <ThemeToggle />
             <button
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-domainBlue hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-domainBlue"
+              className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-purpleTheme-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purpleTheme-primary"
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? (
