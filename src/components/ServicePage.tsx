@@ -25,11 +25,11 @@ const ServicePage = ({
   return (
     <Layout>
       {/* Page Header */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-16">
+      <section className="bg-gradient-to-b from-purpleTheme-primary/10 to-background py-16">
         <div className="domain-container">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{title}</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h1 className="text-4xl font-bold text-foreground mb-4">{title}</h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               {description}
             </p>
           </div>
@@ -44,14 +44,14 @@ const ServicePage = ({
       </section>
       
       {/* Call to Action */}
-      <section className="py-16 bg-domainBlue text-white">
+      <section className="py-16 bg-purpleTheme-primary text-white">
         <div className="domain-container">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">{ctaTitle}</h2>
             <p className="text-xl mb-8">
               {ctaDescription}
             </p>
-            <Button className="bg-white text-domainBlue hover:bg-gray-100" size="lg" asChild>
+            <Button className="bg-white text-purpleTheme-primary hover:bg-gray-100 hover:text-purpleTheme-secondary" size="lg" asChild>
               <a href={ctaButtonLink}>{ctaButtonText}</a>
             </Button>
           </div>
