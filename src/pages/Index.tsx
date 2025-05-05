@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout';
 import DomainSearch from '@/components/DomainSearch';
 import ServiceCard from '@/components/ServiceCard';
 import PriceCard from '@/components/PriceCard';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowRight, 
