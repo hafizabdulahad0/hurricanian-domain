@@ -46,7 +46,7 @@ const DomainSearch = () => {
           />
           <Button 
             type="submit" 
-            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-6 py-6 h-auto"
+            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-4 py-2 h-auto"
             disabled={isSearching}
           >
             {isSearching ? (
