@@ -21,6 +21,7 @@ import Privacy from "./pages/Privacy";
 import Expiration from "./pages/Expiration";
 import SSL from "./pages/SSL";
 import SiteLock from "./pages/SiteLock";
+import Hosting from "./pages/Hosting";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/expiration" element={<Expiration />} />
           <Route path="/ssl" element={<SSL />} />
           <Route path="/sitelock" element={<SiteLock />} />
+          <Route path="/hosting" element={<Hosting />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

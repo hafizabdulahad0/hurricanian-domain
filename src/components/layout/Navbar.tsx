@@ -16,13 +16,18 @@ import {
   FileSearch,
   ArrowRight,
   FileUp,
-  Wand2
+  Wand2,
+  Server,
+  Cloud,
+  Database,
+  HardDrive
 } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [domainDropdownOpen, setDomainDropdownOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
+  const [hostingDropdownOpen, setHostingDropdownOpen] = useState(false);
   
   const toggleMenu = () => setIsOpen(!isOpen);
   
@@ -69,6 +74,37 @@ const Navbar = () => {
                   <Link to="/domain-ai" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
                     <Wand2 className="mr-3 h-5 w-5 text-domainBlue" />
                     <span>AI Domain Generator</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative group">
+              <button 
+                className="flex items-center text-gray-700 hover:text-domainBlue transition-colors"
+                onClick={() => setHostingDropdownOpen(!hostingDropdownOpen)}
+              >
+                Hosting <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              
+              {/* Hosting dropdown */}
+              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${hostingDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
+                <div className="py-1">
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
+                    <Server className="mr-3 h-5 w-5 text-domainBlue" />
+                    <span>Shared Hosting</span>
+                  </Link>
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
+                    <Cloud className="mr-3 h-5 w-5 text-domainBlue" />
+                    <span>Cloud Hosting</span>
+                  </Link>
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
+                    <Database className="mr-3 h-5 w-5 text-domainBlue" />
+                    <span>Dedicated Servers</span>
+                  </Link>
+                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-domainGray">
+                    <HardDrive className="mr-3 h-5 w-5 text-domainBlue" />
+                    <span>VPS Hosting</span>
                   </Link>
                 </div>
               </div>
@@ -173,6 +209,35 @@ const Navbar = () => {
                 </Link>
                 <Link to="/domain-ai" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
                   AI Domain Generator
+                </Link>
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-1">
+            <button 
+              className="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md"
+              onClick={() => setHostingDropdownOpen(!hostingDropdownOpen)}
+            >
+              <div className="flex items-center justify-between">
+                <span>Hosting</span>
+                <ChevronDown className={`h-4 w-4 transform ${hostingDropdownOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+            
+            {hostingDropdownOpen && (
+              <div className="pl-4 space-y-1">
+                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
+                  Shared Hosting
+                </Link>
+                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
+                  Cloud Hosting
+                </Link>
+                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
+                  Dedicated Servers
+                </Link>
+                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
+                  VPS Hosting
                 </Link>
               </div>
             )}

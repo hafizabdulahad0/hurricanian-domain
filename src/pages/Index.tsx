@@ -1,4 +1,3 @@
-
 import Layout from '@/components/layout/Layout';
 import DomainSearch from '@/components/DomainSearch';
 import ServiceCard from '@/components/ServiceCard';
@@ -16,7 +15,10 @@ import {
   Wand2, 
   FileSearch, 
   FileText, 
-  Search 
+  Search,
+  Server,
+  Database,
+  Cloud
 } from 'lucide-react';
 
 const Index = () => {
@@ -124,6 +126,48 @@ const Index = () => {
           <div className="mt-12 text-center">
             <Button className="bg-domainBlue hover:bg-domainBlue-dark" asChild>
               <a href="/services">View All Services</a>
+            </Button>
+          </div>
+        </div>
+      </section>
+      
+      {/* Hosting Services */}
+      <section className="py-16 bg-domainGray">
+        <div className="domain-container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Web Hosting Solutions</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Fast, reliable hosting for your website with 24/7 support
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ServiceCard
+              title="Shared Hosting"
+              description="Affordable hosting perfect for small websites and personal blogs."
+              icon={Server}
+              link="/hosting"
+              color="bg-blue-600"
+            />
+            <ServiceCard
+              title="Cloud Hosting"
+              description="Scalable resources for growing websites with variable traffic."
+              icon={Cloud}
+              link="/hosting"
+              color="bg-sky-600"
+            />
+            <ServiceCard
+              title="Dedicated Servers"
+              description="Maximum performance and control for high-traffic websites."
+              icon={Database}
+              link="/hosting"
+              color="bg-indigo-700"
+            />
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Button className="bg-domainBlue hover:bg-domainBlue-dark" asChild>
+              <a href="/hosting">View All Hosting Plans</a>
             </Button>
           </div>
         </div>
