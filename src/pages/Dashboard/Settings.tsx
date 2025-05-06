@@ -16,7 +16,7 @@ interface ProfileData {
   avatar_url: string | null;
 }
 
-const AccountSettings = () => {
+const Settings = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileData>({
     username: '',
