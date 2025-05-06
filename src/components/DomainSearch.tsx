@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, AlertCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
@@ -14,15 +15,49 @@ const DomainSearch = () => {
     '.io': true
   });
   const [isSearching, setIsSearching] = useState(false);
+  const [apiConfigured, setApiConfigured] = useState(false);
   
-  const handleSearch = (e: React.FormEvent) => {
+  // Check if API is configured
+  useState(() => {
+    const savedConfig = localStorage.getItem('domainApiConfig');
+    setApiConfigured(!!savedConfig);
+  });
+  
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
     
-    // Simulate search delay
-    setTimeout(() => {
+    // Check if API is configured
+    const apiConfig = localStorage.getItem('domainApiConfig');
+    if (!apiConfig) {
       setIsSearching(false);
-    }, 1000);
+      // Could redirect to API configuration page or show a modal
+      return;
+    }
+    
+    // Get selected extensions
+    const selectedExtensions = Object.entries(extensionChecks)
+      .filter(([_, isChecked]) => isChecked)
+      .map(([ext]) => ext);
+      
+    try {
+      // In a real implementation, this would call the domain registrar API
+      // via a server-side endpoint to check availability
+      
+      // Example API call structure (not actually executed here):
+      // const config = JSON.parse(apiConfig);
+      // const results = await checkDomainAvailability(domain, selectedExtensions, config);
+      
+      // For now, we'll simulate the API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real implementation, you would save results to state or context
+      // and potentially store the search in your database
+    } catch (error) {
+      console.error('Error searching domains:', error);
+    } finally {
+      setIsSearching(false);
+    }
   };
   
   const handleExtensionToggle = (ext: string) => {
@@ -34,6 +69,18 @@ const DomainSearch = () => {
   
   return (
     <div className="w-full max-w-3xl mx-auto">
+      {!apiConfigured && (
+        <Alert variant="warning" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Domain API is not configured. Some features may use sample data instead of real-time information.
+            <Button variant="link" className="p-0 h-auto text-sm" asChild>
+              <a href="/api-integration">Configure API</a>
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+    
       <form onSubmit={handleSearch} className="relative">
         <div className="flex">
           <Input

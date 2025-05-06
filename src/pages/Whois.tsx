@@ -4,15 +4,41 @@ import ServicePage from '@/components/ServicePage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FileText, Search } from 'lucide-react';
+import { FileText, Search, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Whois = () => {
   const [domain, setDomain] = useState('');
   const [searched, setSearched] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [apiConfigured, setApiConfigured] = useState(false);
   
-  const handleSearch = (e: React.FormEvent) => {
+  // Check if API is configured
+  useState(() => {
+    const savedConfig = localStorage.getItem('domainApiConfig');
+    setApiConfigured(!!savedConfig);
+  });
+  
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSearched(true);
+    setIsSearching(true);
+    
+    try {
+      // In a real implementation, this would call a WHOIS API
+      // Example API providers:
+      // - WHOIS XML API (whoisxmlapi.com)
+      // - Domain Reseller API (GoDaddy, Namecheap, etc)
+      // - RWhois API from registrars
+      
+      // Simulate API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setSearched(true);
+    } catch (error) {
+      console.error('Error fetching WHOIS data:', error);
+    } finally {
+      setIsSearching(false);
+    }
   };
   
   return (
@@ -28,6 +54,18 @@ const Whois = () => {
         <Card className="p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6">WHOIS Lookup Tool</h2>
           
+          {!apiConfigured && (
+            <Alert variant="warning" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                WHOIS API is not configured. Sample data will be shown instead of real-time information.
+                <Button variant="link" className="p-0 h-auto text-sm" asChild>
+                  <a href="/api-integration">Configure API</a>
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSearch}>
             <div className="flex flex-col sm:flex-row gap-4">
               <Input
@@ -38,9 +76,22 @@ const Whois = () => {
                 className="flex-1"
                 required
               />
-              <Button type="submit" className="bg-domainBlue hover:bg-domainBlue-dark">
-                <Search className="mr-2 h-4 w-4" />
-                <span>Lookup</span>
+              <Button 
+                type="submit" 
+                className="bg-domainBlue hover:bg-domainBlue-dark"
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>Looking up...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Search className="mr-2 h-4 w-4" />
+                    <span>Lookup</span>
+                  </>
+                )}
               </Button>
             </div>
           </form>
@@ -135,6 +186,48 @@ const Whois = () => {
           <p className="text-gray-600">
             Many domain registrants choose to keep their information private by using domain privacy protection services.
           </p>
+        </div>
+        
+        <div className="mt-8 border-t pt-8">
+          <h2 className="text-xl font-bold mb-4">Popular WHOIS API Providers</h2>
+          <ul className="space-y-4">
+            <li className="flex">
+              <div className="mr-4 flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">WHOIS XML API</h3>
+                <p className="text-sm text-gray-600">Comprehensive WHOIS data API with historical records and bulk lookups.</p>
+                <a href="https://www.whoisxmlapi.com/" className="text-xs text-purpleTheme-primary hover:underline" target="_blank" rel="noopener noreferrer">whoisxmlapi.com</a>
+              </div>
+            </li>
+            <li className="flex">
+              <div className="mr-4 flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">DomainTools</h3>
+                <p className="text-sm text-gray-600">Enterprise-level WHOIS API with additional domain intelligence features.</p>
+                <a href="https://www.domaintools.com/" className="text-xs text-purpleTheme-primary hover:underline" target="_blank" rel="noopener noreferrer">domaintools.com</a>
+              </div>
+            </li>
+            <li className="flex">
+              <div className="mr-4 flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">RWhois API</h3>
+                <p className="text-sm text-gray-600">Available through most domain registrars like GoDaddy and Namecheap.</p>
+                <a href="https://www.godaddy.com/reseller-program" className="text-xs text-purpleTheme-primary hover:underline" target="_blank" rel="noopener noreferrer">godaddy.com/reseller-program</a>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </ServicePage>
