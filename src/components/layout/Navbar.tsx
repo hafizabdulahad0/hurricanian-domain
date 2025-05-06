@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Search, 
   Menu, 
@@ -21,7 +22,8 @@ import {
   Server,
   Cloud,
   Database,
-  HardDrive
+  HardDrive,
+  User
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -30,7 +32,15 @@ const Navbar = () => {
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [hostingDropdownOpen, setHostingDropdownOpen] = useState(false);
   
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  
   const toggleMenu = () => setIsOpen(!isOpen);
+  
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   return (
     <nav className="bg-background shadow-sm sticky top-0 z-50 border-b">
@@ -160,8 +170,41 @@ const Navbar = () => {
           {/* Login/Signup & Theme Toggle */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             <ThemeToggle />
-            <Button variant="outline" className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white">Log in</Button>
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">Sign up</Button>
+            
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="outline" 
+                  className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Button>
+                <Button 
+                  className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary"
+                  onClick={handleSignOut}
+                >
+                  Sign out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white"
+                  onClick={() => navigate('/auth/login')}
+                >
+                  Log in
+                </Button>
+                <Button 
+                  className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary"
+                  onClick={() => navigate('/auth/signup')}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
           </div>
           
           {/* Mobile menu button */}
@@ -285,25 +328,41 @@ const Navbar = () => {
         </div>
         
         <div className="pt-4 pb-3 border-t border-gray-200">
-          <div className="flex items-center px-5">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-full bg-domainBlue text-white flex items-center justify-center">
-                <span className="text-lg font-semibold">G</span>
+          {user ? (
+            <div>
+              <div className="flex items-center px-5">
+                <div className="flex-shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-purpleTheme-primary text-white flex items-center justify-center">
+                    <User className="h-6 w-6" />
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-gray-800">Account</div>
+                  <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                </div>
+              </div>
+              <div className="mt-3 space-y-1">
+                <Link to="/dashboard" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-purpleTheme-primary rounded-md">
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={handleSignOut}
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 rounded-md"
+                >
+                  Sign out
+                </button>
               </div>
             </div>
-            <div className="ml-3">
-              <div className="text-base font-medium text-gray-800">Guest User</div>
-              <div className="text-sm font-medium text-gray-500">guest@example.com</div>
+          ) : (
+            <div className="mt-3 space-y-1 px-2">
+              <Link to="/auth/login" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-purpleTheme-primary rounded-md">
+                Log in
+              </Link>
+              <Link to="/auth/signup" className="block px-3 py-2 text-base font-medium text-purpleTheme-primary hover:bg-gray-50 rounded-md">
+                Sign up
+              </Link>
             </div>
-          </div>
-          <div className="mt-3 space-y-1">
-            <button className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-              Log in
-            </button>
-            <button className="block w-full text-left px-3 py-2 text-base font-medium text-domainBlue hover:bg-gray-50 rounded-md">
-              Sign up
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </nav>

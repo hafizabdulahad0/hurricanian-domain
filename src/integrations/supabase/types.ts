@@ -9,7 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      domain_searches: {
+        Row: {
+          available: boolean | null
+          domain_name: string
+          extension: string | null
+          id: string
+          search_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          available?: boolean | null
+          domain_name: string
+          extension?: string | null
+          id?: string
+          search_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          available?: boolean | null
+          domain_name?: string
+          extension?: string | null
+          id?: string
+          search_date?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      saved_domains: {
+        Row: {
+          domain_name: string
+          id: string
+          notes: string | null
+          saved_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          domain_name: string
+          id?: string
+          notes?: string | null
+          saved_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          domain_name?: string
+          id?: string
+          notes?: string | null
+          saved_date?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -5,8 +5,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+
+// Auth and Dashboard routes
+import AuthRoute from "./pages/Auth/AuthRoute";
+import DashboardRoute from "./pages/Dashboard/DashboardRoute";
 
 // Create a standard service page component
 import DomainSearch from "./pages/DomainSearch";
@@ -52,26 +57,35 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/domain-search" element={<DomainSearch />} />
-            <Route path="/transfer" element={<Transfer />} />
-            <Route path="/whois" element={<Whois />} />
-            <Route path="/appraise" element={<Appraise />} />
-            <Route path="/domain-ai" element={<DomainAI />} />
-            <Route path="/broker" element={<Broker />} />
-            <Route path="/premium" element={<Premium />} />
-            <Route path="/free-domains" element={<FreeDomains />} />
-            <Route path="/extensions" element={<Extensions />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/expiration" element={<Expiration />} />
-            <Route path="/ssl" element={<SSL />} />
-            <Route path="/sitelock" element={<SiteLock />} />
-            <Route path="/hosting" element={<Hosting />} />
-            <Route path="/api-integration" element={<ApiIntegration />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/domain-search" element={<DomainSearch />} />
+              <Route path="/transfer" element={<Transfer />} />
+              <Route path="/whois" element={<Whois />} />
+              <Route path="/appraise" element={<Appraise />} />
+              <Route path="/domain-ai" element={<DomainAI />} />
+              <Route path="/broker" element={<Broker />} />
+              <Route path="/premium" element={<Premium />} />
+              <Route path="/free-domains" element={<FreeDomains />} />
+              <Route path="/extensions" element={<Extensions />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/expiration" element={<Expiration />} />
+              <Route path="/ssl" element={<SSL />} />
+              <Route path="/sitelock" element={<SiteLock />} />
+              <Route path="/hosting" element={<Hosting />} />
+              <Route path="/api-integration" element={<ApiIntegration />} />
+              <Route path="/admin" element={<Admin />} />
+              
+              {/* Auth routes */}
+              <Route path="/auth/*" element={<AuthRoute />} />
+              
+              {/* Dashboard routes */}
+              <Route path="/dashboard/*" element={<DashboardRoute />} />
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
