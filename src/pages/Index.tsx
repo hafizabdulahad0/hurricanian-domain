@@ -1,10 +1,10 @@
-
 import Layout from '@/components/layout/Layout';
 import DomainSearch from '@/components/DomainSearch';
 import ServiceCard from '@/components/ServiceCard';
 import PriceCard from '@/components/PriceCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { 
   ArrowRight, 
   Star, 
@@ -126,8 +126,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" asChild>
-              <a href="/services">View All Services</a>
+            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+              <Link to="/domain-search" className="text-white">View All Services</Link>
             </Button>
           </div>
         </div>
@@ -168,8 +168,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" asChild>
-              <a href="/hosting">View All Hosting Plans</a>
+            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+              <Link to="/hosting" className="text-white">View All Hosting Plans</Link>
             </Button>
           </div>
         </div>
@@ -205,8 +205,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" asChild>
-              <a href="/premium">View Premium Domains</a>
+            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+              <Link to="/premium" className="text-white">View Premium Domains</Link>
             </Button>
           </div>
         </div>
@@ -255,8 +255,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" asChild>
-              <a href="/extensions">View All Extensions</a>
+            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+              <Link to="/extensions" className="text-white">View All Extensions</Link>
             </Button>
           </div>
         </div>
@@ -377,8 +377,8 @@ const Index = () => {
             <p className="text-xl mb-8">
               Start your online journey today with a domain name that perfectly represents your brand.
             </p>
-            <Button className="bg-white text-purpleTheme-primary hover:bg-gray-100" size="lg" asChild>
-              <a href="/domain-search">Find Your Domain Now</a>
+            <Button className="bg-white text-purpleTheme-primary hover:bg-gray-100" size="lg">
+              <Link to="/domain-search">Find Your Domain Now</Link>
             </Button>
           </div>
         </div>

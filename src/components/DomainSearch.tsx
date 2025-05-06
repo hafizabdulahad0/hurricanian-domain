@@ -46,7 +46,7 @@ const DomainSearch = () => {
           />
           <Button 
             type="submit" 
-            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-4 py-2 h-auto"
+            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-4 h-auto"
             disabled={isSearching}
           >
             {isSearching ? (
@@ -56,8 +56,8 @@ const DomainSearch = () => {
               </div>
             ) : (
               <div className="flex items-center">
-                <Search className="mr-2 h-5 w-5" />
-                <span>Search</span>
+                <Search className="mr-1 h-4 w-4" />
+                <span className="text-sm">Search</span>
               </div>
             )}
           </Button>
