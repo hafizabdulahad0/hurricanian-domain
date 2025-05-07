@@ -1,13 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from "@/components/ui/theme-provider";
-import { Moon, Sun, Github, User, ShoppingCart } from 'lucide-react';
+import { Moon, Sun, User, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/integrations/supabase/client';
+
 const Navbar = () => {
   const {
     theme,
@@ -21,6 +23,7 @@ const Navbar = () => {
     totalItems
   } = useCart();
   const [isAdmin, setIsAdmin] = useState(false);
+  
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (user) {
@@ -39,6 +42,7 @@ const Navbar = () => {
       checkAdminStatus();
     }
   }, [user]);
+
   return <header className="border-b">
       <div className="bg-secondary py-2 text-center text-secondary-foreground text-sm">
         Free WHOIS Lookup | Starting at $9.99 .com
@@ -81,10 +85,7 @@ const Navbar = () => {
                     {totalItems}
                   </span>}
               </Link>
-              <Button variant="ghost" size="icon" onClick={() => window.open('https://github.com/sadmann7/domain', '_blank')}>
-                <Github className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
-              </Button>
+              {/* GitHub button has been removed from here */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
