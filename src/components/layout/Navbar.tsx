@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from "@/components/ui/theme-provider";
@@ -6,23 +5,22 @@ import { Moon, Sun, Github, User, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-
 const Navbar = () => {
-  const { theme, setTheme } = useTheme();
-  const { user, signOut } = useAuth();
-  const { totalItems } = useCart();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
+  const {
+    user,
+    signOut
+  } = useAuth();
+  const {
+    totalItems
+  } = useCart();
   const [isAdmin, setIsAdmin] = useState(false);
-  
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (user) {
@@ -37,14 +35,11 @@ const Navbar = () => {
         }
       }
     };
-    
     if (user) {
       checkAdminStatus();
     }
   }, [user]);
-  
-  return (
-    <header className="border-b">
+  return <header className="border-b">
       <div className="bg-secondary py-2 text-center text-secondary-foreground text-sm">
         Free WHOIS Lookup | Starting at $9.99 .com
       </div>
@@ -54,9 +49,8 @@ const Navbar = () => {
           <nav className="flex flex-wrap justify-center lg:justify-between items-center gap-y-2">
             {/* Website Logo/Name */}
             <div className="w-full md:w-auto flex justify-center md:justify-start mb-4 md:mb-0">
-              <Link to="/" className="text-2xl font-bold text-purpleTheme-primary hover:text-purpleTheme-secondary transition">
-                DomainMaster
-              </Link>
+              <Link to="/" className="text-2xl font-bold text-purpleTheme-primary hover:text-purpleTheme-secondary transition">Hurricanian Domains
+            </Link>
             </div>
             
             <div className="flex flex-wrap justify-center gap-4 text-sm">
@@ -75,21 +69,17 @@ const Navbar = () => {
               <Link to="/hosting" className="hover:text-purpleTheme-primary transition">
                 Web Hosting
               </Link>
-              {isAdmin && (
-                <Link to="/admin" className="hover:text-purpleTheme-primary transition">
+              {isAdmin && <Link to="/admin" className="hover:text-purpleTheme-primary transition">
                   Admin Dashboard
-                </Link>
-              )}
+                </Link>}
             </div>
             
             <div className="flex items-center gap-4">
               <Link to="/cart" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-purpleTheme-primary text-xs text-white rounded-full h-5 w-5 flex items-center justify-center">
+                {totalItems > 0 && <span className="absolute -top-2 -right-2 bg-purpleTheme-primary text-xs text-white rounded-full h-5 w-5 flex items-center justify-center">
                     {totalItems}
-                  </span>
-                )}
+                  </span>}
               </Link>
               <Button variant="ghost" size="icon" onClick={() => window.open('https://github.com/sadmann7/domain', '_blank')}>
                 <Github className="h-5 w-5" />
@@ -125,8 +115,6 @@ const Navbar = () => {
           </nav>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Navbar;
