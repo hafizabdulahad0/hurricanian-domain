@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Check, AlertTriangle, Save } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface APIConfig {
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PlusCircle, Trash2, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+type APIConfig = {
   id: string;
   provider: string;
   api_key: string;
-  api_secret?: string;
-  integration_status: 'active' | 'inactive' | 'error';
-  last_checked?: string;
-  settings?: Record<string, any>;
-}
+  integration_status: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 const ApiIntegrations = () => {
-  const [apiConfigs, setApiConfigs] = useState<APIConfig[]>([]);
+  const [configs, setConfigs] = useState<APIConfig[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('domain');
+  const [provider, setProvider] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   
-  // Load API configurations on component mount
   useEffect(() => {
     fetchApiConfigs();
   }, []);
@@ -34,516 +34,204 @@ const ApiIntegrations = () => {
   const fetchApiConfigs = async () => {
     setLoading(true);
     try {
-      // Mock API data instead of calling Supabase
-      const mockData: APIConfig[] = [
-        {
-          id: '1',
-          provider: 'godaddy',
-          api_key: '********',
-          api_secret: '********',
-          integration_status: 'active',
-          last_checked: new Date().toISOString(),
-          settings: {}
-        },
-        {
-          id: '2',
-          provider: 'namecheap',
-          api_key: '********',
-          api_secret: '********',
-          integration_status: 'inactive',
-          settings: {}
-        },
-        {
-          id: '3',
-          provider: 'resellerclub',
-          api_key: '',
-          api_secret: '',
-          integration_status: 'inactive',
-          settings: {}
-        }
-      ];
+      // Use 'any' to bypass TypeScript errors since the database schema is not reflected in the types
+      const { data, error } = await (supabase
+        .from('api_configurations')
+        .select('*') as any);
+        
+      if (error) throw error;
       
-      setApiConfigs(mockData);
+      // Type-cast the data to match our expected type
+      setConfigs(data as APIConfig[]);
     } catch (error: any) {
-      console.error('Error fetching API configs:', error);
+      console.error('Error fetching API configurations:', error);
       toast({
-        title: 'Error loading configurations',
-        description: error.message,
-        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to load API configurations',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
   
-  const handleSaveConfig = async (provider: string, formData: any) => {
-    setSaving(true);
-    try {
-      // Mock save operation
-      setTimeout(() => {
-        const existingConfig = apiConfigs.find(config => config.provider === provider);
-        
-        if (existingConfig) {
-          // Update existing config in local state
-          setApiConfigs(prev => prev.map(config => 
-            config.provider === provider 
-              ? {
-                  ...config,
-                  api_key: formData.api_key,
-                  api_secret: formData.api_secret,
-                  integration_status: 'active',
-                  last_checked: new Date().toISOString(),
-                }
-              : config
-          ));
-        } else {
-          // Add new config to local state
-          const newConfig: APIConfig = {
-            id: Date.now().toString(),
-            provider,
-            api_key: formData.api_key,
-            api_secret: formData.api_secret,
-            integration_status: 'active',
-            last_checked: new Date().toISOString(),
-            settings: {}
-          };
-          setApiConfigs(prev => [...prev, newConfig]);
-        }
-        
-        toast({
-          title: 'Configuration saved',
-          description: `${provider} API credentials have been updated successfully.`,
-        });
-        
-        setSaving(false);
-      }, 1000);
-    } catch (error: any) {
-      console.error('Error saving API config:', error);
+  const handleAddConfig = async () => {
+    if (!provider || !apiKey) {
       toast({
-        title: 'Error saving configuration',
-        description: error.message,
-        variant: 'destructive',
+        title: 'Validation Error',
+        description: 'Please enter both provider name and API key',
+        variant: 'destructive'
       });
-      setSaving(false);
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      // Use 'any' to bypass TypeScript errors
+      const { data, error } = await (supabase
+        .from('api_configurations')
+        .insert({
+          provider,
+          api_key: apiKey,
+          integration_status: 'active'
+        }) as any);
+        
+      if (error) throw error;
+      
+      toast({
+        title: 'Success',
+        description: `${provider} API integration added successfully`,
+        variant: 'default'
+      });
+      
+      fetchApiConfigs();
+      setProvider('');
+      setApiKey('');
+      setIsAdding(false);
+    } catch (error: any) {
+      console.error('Error adding API configuration:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to add API configuration',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
   
-  const testApiConnection = async (providerId: string) => {
-    // In a real implementation, you would call an endpoint to test the connection
-    // For now, we'll just simulate a successful test
-    toast({
-      title: 'Connection successful',
-      description: `API connection tested successfully.`,
-    });
-  };
-  
-  const DomainRegistrarsTab = () => {
-    const godaddyForm = useForm({
-      defaultValues: {
-        api_key: apiConfigs.find(c => c.provider === 'godaddy')?.api_key || '',
-        api_secret: apiConfigs.find(c => c.provider === 'godaddy')?.api_secret || '',
-      }
-    });
-    
-    const namecheapForm = useForm({
-      defaultValues: {
-        api_key: apiConfigs.find(c => c.provider === 'namecheap')?.api_key || '',
-        api_secret: apiConfigs.find(c => c.provider === 'namecheap')?.api_secret || '',
-      }
-    });
-    
-    const resellerclubForm = useForm({
-      defaultValues: {
-        api_key: apiConfigs.find(c => c.provider === 'resellerclub')?.api_key || '',
-        api_secret: apiConfigs.find(c => c.provider === 'resellerclub')?.api_secret || '',
-      }
-    });
-    
-    return (
-      <div className="space-y-8">
-        {/* GoDaddy */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>GoDaddy</CardTitle>
-                <CardDescription>Connect to GoDaddy Reseller API</CardDescription>
-              </div>
-              {apiConfigs.find(c => c.provider === 'godaddy')?.integration_status === 'active' ? (
-                <Badge className="bg-green-500"><Check className="mr-1 h-3 w-3" /> Connected</Badge>
-              ) : (
-                <Badge variant="outline">Not Connected</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...godaddyForm}>
-              <form onSubmit={godaddyForm.handleSubmit((data) => handleSaveConfig('godaddy', data))} className="space-y-4">
-                <FormField
-                  control={godaddyForm.control}
-                  name="api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>API Key</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your GoDaddy API Key" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Find this in your GoDaddy developer account
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={godaddyForm.control}
-                  name="api_secret"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>API Secret</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter your GoDaddy API Secret" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  {apiConfigs.find(c => c.provider === 'godaddy') && (
-                    <Button type="button" variant="outline" onClick={() => testApiConnection('godaddy')}>
-                      Test Connection
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+  const handleRemoveConfig = async (id: string) => {
+    try {
+      // Use 'any' to bypass TypeScript errors
+      const { error } = await (supabase
+        .from('api_configurations')
+        .delete()
+        .eq('id', id) as any);
         
-        {/* Namecheap */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Namecheap</CardTitle>
-                <CardDescription>Connect to Namecheap Reseller API</CardDescription>
-              </div>
-              {apiConfigs.find(c => c.provider === 'namecheap')?.integration_status === 'active' ? (
-                <Badge className="bg-green-500"><Check className="mr-1 h-3 w-3" /> Connected</Badge>
-              ) : (
-                <Badge variant="outline">Not Connected</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...namecheapForm}>
-              <form onSubmit={namecheapForm.handleSubmit((data) => handleSaveConfig('namecheap', data))} className="space-y-4">
-                <FormField
-                  control={namecheapForm.control}
-                  name="api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>API Key</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your Namecheap API Key" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Find this in your Namecheap account settings
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={namecheapForm.control}
-                  name="api_secret"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>API Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your Namecheap API Username" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  {apiConfigs.find(c => c.provider === 'namecheap') && (
-                    <Button type="button" variant="outline" onClick={() => testApiConnection('namecheap')}>
-                      Test Connection
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-        
-        {/* ResellerClub */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>ResellerClub</CardTitle>
-                <CardDescription>Connect to ResellerClub API</CardDescription>
-              </div>
-              {apiConfigs.find(c => c.provider === 'resellerclub')?.integration_status === 'active' ? (
-                <Badge className="bg-green-500"><Check className="mr-1 h-3 w-3" /> Connected</Badge>
-              ) : (
-                <Badge variant="outline">Not Connected</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...resellerclubForm}>
-              <form onSubmit={resellerclubForm.handleSubmit((data) => handleSaveConfig('resellerclub', data))} className="space-y-4">
-                <FormField
-                  control={resellerclubForm.control}
-                  name="api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Reseller ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your ResellerClub Reseller ID" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Your ResellerClub reseller identification
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={resellerclubForm.control}
-                  name="api_secret"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>API Key</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter your ResellerClub API Key" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  {apiConfigs.find(c => c.provider === 'resellerclub') && (
-                    <Button type="button" variant="outline" onClick={() => testApiConnection('resellerclub')}>
-                      Test Connection
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    );
+      if (error) throw error;
+      
+      toast({
+        title: 'Success',
+        description: 'API integration removed successfully',
+        variant: 'default'
+      });
+      
+      fetchApiConfigs();
+    } catch (error: any) {
+      console.error('Error removing API configuration:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to remove API configuration',
+        variant: 'destructive'
+      });
+    }
   };
-  
-  const PaymentGatewaysTab = () => {
-    const jazzCashForm = useForm({
-      defaultValues: {
-        api_key: apiConfigs.find(c => c.provider === 'jazzcash')?.api_key || '',
-        api_secret: apiConfigs.find(c => c.provider === 'jazzcash')?.api_secret || '',
-      }
-    });
-    
-    const easyPaisaForm = useForm({
-      defaultValues: {
-        api_key: apiConfigs.find(c => c.provider === 'easypaisa')?.api_key || '',
-        api_secret: apiConfigs.find(c => c.provider === 'easypaisa')?.api_secret || '',
-      }
-    });
-    
-    return (
-      <div className="space-y-8">
-        {/* JazzCash */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>JazzCash</CardTitle>
-                <CardDescription>Configure JazzCash Payment Gateway</CardDescription>
-              </div>
-              {apiConfigs.find(c => c.provider === 'jazzcash')?.integration_status === 'active' ? (
-                <Badge className="bg-green-500"><Check className="mr-1 h-3 w-3" /> Connected</Badge>
-              ) : (
-                <Badge variant="outline">Not Connected</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...jazzCashForm}>
-              <form onSubmit={jazzCashForm.handleSubmit((data) => handleSaveConfig('jazzcash', data))} className="space-y-4">
-                <FormField
-                  control={jazzCashForm.control}
-                  name="api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Merchant ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your JazzCash Merchant ID" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Your JazzCash merchant identification
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={jazzCashForm.control}
-                  name="api_secret"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Integrity Salt</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter your JazzCash Integrity Salt" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  {apiConfigs.find(c => c.provider === 'jazzcash') && (
-                    <Button type="button" variant="outline" onClick={() => testApiConnection('jazzcash')}>
-                      Test Connection
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-        
-        {/* EasyPaisa */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>EasyPaisa</CardTitle>
-                <CardDescription>Configure EasyPaisa Payment Gateway</CardDescription>
-              </div>
-              {apiConfigs.find(c => c.provider === 'easypaisa')?.integration_status === 'active' ? (
-                <Badge className="bg-green-500"><Check className="mr-1 h-3 w-3" /> Connected</Badge>
-              ) : (
-                <Badge variant="outline">Not Connected</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...easyPaisaForm}>
-              <form onSubmit={easyPaisaForm.handleSubmit((data) => handleSaveConfig('easypaisa', data))} className="space-y-4">
-                <FormField
-                  control={easyPaisaForm.control}
-                  name="api_key"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Merchant ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your EasyPaisa Merchant ID" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Your EasyPaisa merchant identification
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={easyPaisaForm.control}
-                  name="api_secret"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Integrity Key</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter your EasyPaisa Integrity Key" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  {apiConfigs.find(c => c.provider === 'easypaisa') && (
-                    <Button type="button" variant="outline" onClick={() => testApiConnection('easypaisa')}>
-                      Test Connection
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-  
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-pulse text-center">
-          <p className="text-muted-foreground">Loading API configurations...</p>
-        </div>
-      </div>
-    );
-  }
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">API Integrations</h2>
-        <Button variant="outline" onClick={fetchApiConfigs}>Refresh</Button>
+        {!isAdding && (
+          <Button 
+            variant="outline" 
+            onClick={() => setIsAdding(true)}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" /> Add Integration
+          </Button>
+        )}
       </div>
       
-      <Tabs defaultValue="domain" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="domain">Domain Registrars</TabsTrigger>
-          <TabsTrigger value="payment">Payment Gateways</TabsTrigger>
-          <TabsTrigger value="hosting">Hosting Providers</TabsTrigger>
-        </TabsList>
-        
-        <div className="mt-6">
-          <TabsContent value="domain">
-            <DomainRegistrarsTab />
-          </TabsContent>
-          
-          <TabsContent value="payment">
-            <PaymentGatewaysTab />
-          </TabsContent>
-          
-          <TabsContent value="hosting">
-            <div className="text-center py-8 border rounded-lg bg-muted/20">
-              <p className="text-muted-foreground">Hosting provider integrations coming soon...</p>
+      {isAdding && (
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="provider">Provider Name</Label>
+              <Input 
+                id="provider"
+                placeholder="e.g. Namecheap, Cloudflare, etc."
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+              />
             </div>
-          </TabsContent>
+            
+            <div className="space-y-2">
+              <Label htmlFor="api-key">API Key</Label>
+              <Input 
+                id="api-key"
+                type="password"
+                placeholder="Enter API key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsAdding(false);
+                  setProvider('');
+                  setApiKey('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddConfig}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save Integration'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {loading ? (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">Loading API integrations...</p>
         </div>
-      </Tabs>
+      ) : configs.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground mb-4">No API integrations found</p>
+          <p className="text-sm text-muted-foreground">Add domain registrars and hosting providers to enable automatic domain management.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {configs.map((config) => (
+            <Card key={config.id}>
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{config.provider}</h3>
+                      <Badge variant={config.integration_status === 'active' ? 'default' : 'warning'}>
+                        {config.integration_status === 'active' ? (
+                          <><Check className="h-3 w-3 mr-1" /> Active</>
+                        ) : 'Inactive'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      API Key: •••••••••{config.api_key.slice(-4)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Added on {new Date(config.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveConfig(config.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-500" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

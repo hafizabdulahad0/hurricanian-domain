@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      api_configurations: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: string
+          integration_status: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          id?: string
+          integration_status?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          integration_status?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       domain_searches: {
         Row: {
           available: boolean | null
@@ -33,6 +78,36 @@ export type Database = {
           id?: string
           search_date?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          payment_method: string
+          payment_status: string
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items: Json
+          payment_method: string
+          payment_status: string
+          total_amount: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          payment_method?: string
+          payment_status?: string
+          total_amount?: number
+          user_id?: string
         }
         Relationships: []
       }

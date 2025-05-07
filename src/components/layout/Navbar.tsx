@@ -99,11 +99,15 @@ const Navbar = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuItem><Link to="/dashboard">Dashboard</Link></DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem><a href="https://github.com/sadmann7/domain/issues" target="_blank">Report a bug</a></DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <a href="https://github.com/sadmann7/domain/issues" target="_blank">Report a bug</a>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut({ redirectTo: '/auth' })}>Sign out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>

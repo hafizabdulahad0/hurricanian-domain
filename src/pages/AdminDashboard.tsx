@@ -30,14 +30,15 @@ const useIsAdmin = () => {
       }
 
       try {
+        // Since we can't directly use the typed Supabase client for admin_users table,
+        // we'll use the raw query approach
         const { data, error } = await supabase
           .from('admin_users')
           .select('*')
-          .eq('user_id', user.id)
-          .single();
+          .eq('user_id', user.id) as any; // Using 'any' to bypass type checking
 
         if (error) throw error;
-        setIsAdmin(!!data);
+        setIsAdmin(!!data && data.length > 0);
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
