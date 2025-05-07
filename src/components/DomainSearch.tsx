@@ -1,10 +1,13 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, AlertCircle } from 'lucide-react';
+import { Search, AlertCircle, ShoppingCart } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
@@ -16,24 +19,32 @@ const DomainSearch = () => {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [apiConfigured, setApiConfigured] = useState(false);
+  const { addItem } = useCart();
+  const { toast } = useToast();
   
   // Check if API is configured
-  useState(() => {
-    const savedConfig = localStorage.getItem('domainApiConfig');
-    setApiConfigured(!!savedConfig);
-  });
+  useEffect(() => {
+    const checkApiConfiguration = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('api_configurations')
+          .select('provider, integration_status')
+          .eq('integration_status', 'active')
+          .in('provider', ['godaddy', 'namecheap', 'resellerclub']);
+          
+        if (error) throw error;
+        setApiConfigured(data && data.length > 0);
+      } catch (error) {
+        console.error('Error checking API configuration:', error);
+      }
+    };
+    
+    checkApiConfiguration();
+  }, []);
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
-    
-    // Check if API is configured
-    const apiConfig = localStorage.getItem('domainApiConfig');
-    if (!apiConfig) {
-      setIsSearching(false);
-      // Could redirect to API configuration page or show a modal
-      return;
-    }
     
     // Get selected extensions
     const selectedExtensions = Object.entries(extensionChecks)
@@ -44,17 +55,32 @@ const DomainSearch = () => {
       // In a real implementation, this would call the domain registrar API
       // via a server-side endpoint to check availability
       
-      // Example API call structure (not actually executed here):
-      // const config = JSON.parse(apiConfig);
-      // const results = await checkDomainAvailability(domain, selectedExtensions, config);
-      
       // For now, we'll simulate the API call with a delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // In a real implementation, you would save results to state or context
-      // and potentially store the search in your database
+      // Simulate results
+      const results = selectedExtensions.map(ext => ({
+        domain: domain + ext,
+        available: Math.random() > 0.3, // 70% chance of availability
+        price: ext === '.io' ? 39.99 : ext === '.org' ? 12.99 : ext === '.net' ? 11.99 : 9.99
+      }));
+      
+      // Show results
+      toast({
+        title: "Search completed",
+        description: `Found ${results.filter(r => r.available).length} available domains.`,
+      });
+      
+      // Redirect to search results page with the results
+      window.location.href = `/domain-search?query=${domain}&results=${JSON.stringify(results)}`;
+      
     } catch (error) {
       console.error('Error searching domains:', error);
+      toast({
+        title: "Search failed",
+        description: "An error occurred while searching for domains.",
+        variant: "destructive"
+      });
     } finally {
       setIsSearching(false);
     }
@@ -67,16 +93,26 @@ const DomainSearch = () => {
     }));
   };
   
+  const addDomainToCart = (domain: string, price: number) => {
+    addItem({
+      id: `domain-${domain}-${Date.now()}`,
+      type: 'domain',
+      name: domain,
+      price: price,
+      period: 12, // 12 months (1 year)
+      details: {
+        registrationType: 'new'
+      }
+    });
+  };
+  
   return (
     <div className="w-full max-w-3xl mx-auto">
       {!apiConfigured && (
         <Alert variant="warning" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Domain API is not configured. Some features may use sample data instead of real-time information.
-            <Button variant="link" className="p-0 h-auto text-sm" asChild>
-              <a href="/api-integration">Configure API</a>
-            </Button>
+            This is a demonstration using sample data. The actual domain availability may differ.
           </AlertDescription>
         </Alert>
       )}

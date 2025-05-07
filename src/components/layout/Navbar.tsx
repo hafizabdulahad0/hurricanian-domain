@@ -1,371 +1,117 @@
-
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useTheme } from "@/components/ui/theme-provider"
+import { Moon, Sun, Github, User, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  Search, 
-  Menu, 
-  X, 
-  ChevronDown,
-  ShieldCheck,
-  Clock,
-  Gift,
-  Star,
-  FileText,
-  Briefcase,
-  FileSearch,
-  ArrowRight,
-  FileUp,
-  Wand2,
-  Server,
-  Cloud,
-  Database,
-  HardDrive,
-  User
-} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useCart } from '@/context/CartContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [domainDropdownOpen, setDomainDropdownOpen] = useState(false);
-  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
-  const [hostingDropdownOpen, setHostingDropdownOpen] = useState(false);
-  
+  const { theme, setTheme } = useTheme();
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { totalItems } = useCart();
+  const [isAdmin, setIsAdmin] = useState(false);
   
-  const toggleMenu = () => setIsOpen(!isOpen);
-  
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        setIsAdmin(!!data);
+      }
+    };
+    
+    if (user) {
+      checkAdminStatus();
+    }
+  }, [user]);
   
   return (
-    <nav className="bg-background shadow-sm sticky top-0 z-50 border-b">
-      <div className="domain-container py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-purpleTheme-primary">Hurricanian Domains</span>
-            </Link>
-          </div>
-          
-          {/* Desktop Nav */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
-            <div className="relative group">
-              <button 
-                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
-                onClick={() => setDomainDropdownOpen(!domainDropdownOpen)}
-              >
-                Domains <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              
-              {/* Domain dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${domainDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
-                <div className="py-1">
-                  <Link to="/domain-search" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Search className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Domain Search</span>
-                  </Link>
-                  <Link to="/transfer" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <ArrowRight className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Transfer Domain</span>
-                  </Link>
-                  <Link to="/whois" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <FileText className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>WHOIS Lookup</span>
-                  </Link>
-                  <Link to="/appraise" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <FileSearch className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Domain Appraisal</span>
-                  </Link>
-                  <Link to="/domain-ai" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Wand2 className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>AI Domain Generator</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative group">
-              <button 
-                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
-                onClick={() => setHostingDropdownOpen(!hostingDropdownOpen)}
-              >
-                Hosting <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              
-              {/* Hosting dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${hostingDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
-                <div className="py-1">
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Server className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Shared Hosting</span>
-                  </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Cloud className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Cloud Hosting</span>
-                  </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Database className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Dedicated Servers</span>
-                  </Link>
-                  <Link to="/hosting" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <HardDrive className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>VPS Hosting</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative group">
-              <button 
-                className="flex items-center text-foreground hover:text-purpleTheme-primary transition-colors"
-                onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
-              >
-                Services <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              
-              {/* Services dropdown */}
-              <div className={`absolute left-0 mt-2 w-60 rounded-md shadow-lg bg-background ring-1 ring-black ring-opacity-5 transition-all duration-300 ease-in-out ${servicesDropdownOpen ? 'opacity-100 transform translate-y-0' : 'opacity-0 invisible transform -translate-y-2'}`}>
-                <div className="py-1">
-                  <Link to="/broker" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Briefcase className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Domain Broker Service</span>
-                  </Link>
-                  <Link to="/premium" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Star className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Premium Domains</span>
-                  </Link>
-                  <Link to="/free-domains" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <Gift className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>Free Domains</span>
-                  </Link>
-                  <Link to="/extensions" className="group flex items-center px-4 py-3 text-sm text-foreground hover:bg-accent">
-                    <FileUp className="mr-3 h-5 w-5 text-purpleTheme-primary" />
-                    <span>New Domain Extensions</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            
-            <Link to="/privacy" className="text-foreground hover:text-purpleTheme-primary transition-colors">
-              <div className="flex items-center">
-                <ShieldCheck className="mr-1 h-4 w-4" />
-                <span>Domain Privacy</span>
-              </div>
-            </Link>
-            
-            <Link to="/ssl" className="text-foreground hover:text-purpleTheme-primary transition-colors">
-              <div className="flex items-center">
-                <ShieldCheck className="mr-1 h-4 w-4" />
-                <span>SSL Certificates</span>
-              </div>
-            </Link>
-          </div>
-          
-          {/* Login/Signup & Theme Toggle */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <ThemeToggle />
-            
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="outline" 
-                  className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Button>
-                <Button 
-                  className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary"
-                  onClick={handleSignOut}
-                >
-                  Sign out
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white"
-                  onClick={() => navigate('/auth/login')}
-                >
-                  Log in
-                </Button>
-                <Button 
-                  className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary"
-                  onClick={() => navigate('/auth/signup')}
-                >
-                  Sign up
-                </Button>
-              </>
-            )}
-          </div>
-          
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center space-x-4">
-            <ThemeToggle />
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-foreground hover:text-purpleTheme-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purpleTheme-primary"
-            >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? (
-                <X className="block h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Menu className="block h-6 w-6" aria-hidden="true" />
-              )}
-            </button>
-          </div>
-        </div>
+    <header className="border-b">
+      <div className="bg-secondary py-2 text-center text-secondary-foreground text-sm">
+        Free WHOIS Lookup | Starting at $9.99 .com
       </div>
       
-      {/* Mobile menu */}
-      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <div className="space-y-1">
-            <button 
-              className="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md"
-              onClick={() => setDomainDropdownOpen(!domainDropdownOpen)}
-            >
-              <div className="flex items-center justify-between">
-                <span>Domains</span>
-                <ChevronDown className={`h-4 w-4 transform ${domainDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            
-            {domainDropdownOpen && (
-              <div className="pl-4 space-y-1">
-                <Link to="/domain-search" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Domain Search
-                </Link>
-                <Link to="/transfer" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Transfer Domain
-                </Link>
-                <Link to="/whois" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  WHOIS Lookup
-                </Link>
-                <Link to="/appraise" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Domain Appraisal
-                </Link>
-                <Link to="/domain-ai" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  AI Domain Generator
-                </Link>
-              </div>
-            )}
-          </div>
-          
-          <div className="space-y-1">
-            <button 
-              className="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md"
-              onClick={() => setHostingDropdownOpen(!hostingDropdownOpen)}
-            >
-              <div className="flex items-center justify-between">
-                <span>Hosting</span>
-                <ChevronDown className={`h-4 w-4 transform ${hostingDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            
-            {hostingDropdownOpen && (
-              <div className="pl-4 space-y-1">
-                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Shared Hosting
-                </Link>
-                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Cloud Hosting
-                </Link>
-                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Dedicated Servers
-                </Link>
-                <Link to="/hosting" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  VPS Hosting
-                </Link>
-              </div>
-            )}
-          </div>
-          
-          <div className="space-y-1">
-            <button 
-              className="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md"
-              onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
-            >
-              <div className="flex items-center justify-between">
-                <span>Services</span>
-                <ChevronDown className={`h-4 w-4 transform ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            
-            {servicesDropdownOpen && (
-              <div className="pl-4 space-y-1">
-                <Link to="/broker" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Domain Broker Service
-                </Link>
-                <Link to="/premium" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Premium Domains
-                </Link>
-                <Link to="/free-domains" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  Free Domains
-                </Link>
-                <Link to="/extensions" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-                  New Domain Extensions
-                </Link>
-              </div>
-            )}
-          </div>
-          
-          <Link to="/privacy" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-            Domain Privacy
-          </Link>
-          
-          <Link to="/ssl" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-domainBlue rounded-md">
-            SSL Certificates
-          </Link>
-        </div>
-        
-        <div className="pt-4 pb-3 border-t border-gray-200">
-          {user ? (
-            <div>
-              <div className="flex items-center px-5">
-                <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-purpleTheme-primary text-white flex items-center justify-center">
-                    <User className="h-6 w-6" />
-                  </div>
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium text-gray-800">Account</div>
-                  <div className="text-sm font-medium text-gray-500">{user.email}</div>
-                </div>
-              </div>
-              <div className="mt-3 space-y-1">
-                <Link to="/dashboard" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-purpleTheme-primary rounded-md">
-                  Dashboard
-                </Link>
-                <button 
-                  onClick={handleSignOut}
-                  className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 rounded-md"
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-3 space-y-1 px-2">
-              <Link to="/auth/login" className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-purpleTheme-primary rounded-md">
-                Log in
+      <div className="py-4 border-t">
+        <div className="domain-container">
+          <nav className="flex flex-wrap justify-center lg:justify-between items-center gap-y-2">
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <Link to="/domain-search" className="hover:text-purpleTheme-primary transition">
+                Domain Search
               </Link>
-              <Link to="/auth/signup" className="block px-3 py-2 text-base font-medium text-purpleTheme-primary hover:bg-gray-50 rounded-md">
-                Sign up
+              <Link to="/domain-auction" className="hover:text-purpleTheme-primary transition">
+                Domain Auction
               </Link>
+              <Link to="/transfer" className="hover:text-purpleTheme-primary transition">
+                Domain Transfer
+              </Link>
+              <Link to="/whois" className="hover:text-purpleTheme-primary transition">
+                WHOIS Lookup
+              </Link>
+              <Link to="/hosting" className="hover:text-purpleTheme-primary transition">
+                Web Hosting
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="hover:text-purpleTheme-primary transition">
+                  Admin Dashboard
+                </Link>
+              )}
             </div>
-          )}
+            
+            <div className="flex items-center gap-4">
+              <Link to="/cart" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-purpleTheme-primary text-xs text-white rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+              <Button variant="ghost" size="icon" onClick={() => window.open('https://github.com/sadmann7/domain', '_blank')}>
+                <Github className="h-5 w-5" />
+                <span className="sr-only">GitHub</span>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.user_metadata?.avatar_url as string} />
+                      <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuItem><Link to="/dashboard">Dashboard</Link></DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem><a href="https://github.com/sadmann7/domain/issues" target="_blank">Report a bug</a></DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut({ redirectTo: '/auth' })}>Sign out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </div>
+          </nav>
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

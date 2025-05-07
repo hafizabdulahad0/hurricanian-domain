@@ -18,3 +18,10 @@ verify_jwt = true
 
 [functions.whois-lookup]
 verify_jwt = true
+
+[functions.process-payment]
+verify_jwt = true
+
+[functions.domain-auction]
+verify_jwt = true
+

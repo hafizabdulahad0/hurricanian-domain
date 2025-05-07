@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,6 +29,11 @@ import SiteLock from "./pages/SiteLock";
 import Hosting from "./pages/Hosting";
 import ApiIntegration from "./pages/ApiIntegration";
 import Admin from "./pages/Admin";
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import PaymentSuccess from './pages/PaymentSuccess';
+import AdminDashboard from './pages/AdminDashboard';
+import DomainAuction from './pages/DomainAuction';
 
 const queryClient = new QueryClient();
 
@@ -50,46 +54,57 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/domain-search" element={<DomainSearch />} />
-              <Route path="/transfer" element={<Transfer />} />
-              <Route path="/whois" element={<Whois />} />
-              <Route path="/appraise" element={<Appraise />} />
-              <Route path="/domain-ai" element={<DomainAI />} />
-              <Route path="/broker" element={<Broker />} />
-              <Route path="/premium" element={<Premium />} />
-              <Route path="/free-domains" element={<FreeDomains />} />
-              <Route path="/extensions" element={<Extensions />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/expiration" element={<Expiration />} />
-              <Route path="/ssl" element={<SSL />} />
-              <Route path="/sitelock" element={<SiteLock />} />
-              <Route path="/hosting" element={<Hosting />} />
-              <Route path="/api-integration" element={<ApiIntegration />} />
-              <Route path="/admin" element={<Admin />} />
-              
-              {/* Auth routes */}
-              <Route path="/auth/*" element={<AuthRoute />} />
-              
-              {/* Dashboard routes */}
-              <Route path="/dashboard/*" element={<DashboardRoute />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="theme">
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/domain-search" element={<DomainSearch />} />
+                  <Route path="/transfer" element={<Transfer />} />
+                  <Route path="/whois" element={<Whois />} />
+                  <Route path="/appraise" element={<Appraise />} />
+                  <Route path="/domain-ai" element={<DomainAI />} />
+                  <Route path="/broker" element={<Broker />} />
+                  <Route path="/premium" element={<Premium />} />
+                  <Route path="/free-domains" element={<FreeDomains />} />
+                  <Route path="/extensions" element={<Extensions />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/expiration" element={<Expiration />} />
+                  <Route path="/ssl" element={<SSL />} />
+                  <Route path="/sitelock" element={<SiteLock />} />
+                  <Route path="/hosting" element={<Hosting />} />
+                  <Route path="/api-integration" element={<ApiIntegration />} />
+                  <Route path="/admin" element={<Admin />} />
+                  
+                  {/* Auth routes */}
+                  <Route path="/auth/*" element={<AuthRoute />} />
+                  
+                  {/* Dashboard routes */}
+                  <Route path="/dashboard/*" element={<DashboardRoute />} />
+                  
+                  {/* New routes */}
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/domain-auction" element={<DomainAuction />} />
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AuthProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
