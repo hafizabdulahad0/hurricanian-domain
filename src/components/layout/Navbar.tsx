@@ -52,6 +52,13 @@ const Navbar = () => {
       <div className="py-4 border-t">
         <div className="domain-container">
           <nav className="flex flex-wrap justify-center lg:justify-between items-center gap-y-2">
+            {/* Website Logo/Name */}
+            <div className="w-full md:w-auto flex justify-center md:justify-start mb-4 md:mb-0">
+              <Link to="/" className="text-2xl font-bold text-purpleTheme-primary hover:text-purpleTheme-secondary transition">
+                DomainMaster
+              </Link>
+            </div>
+            
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <Link to="/domain-search" className="hover:text-purpleTheme-primary transition">
                 Domain Search
@@ -92,7 +99,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.user_metadata?.avatar_url as string} />
+                      <AvatarImage src={user?.user_metadata?.avatar_url} />
                       <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
