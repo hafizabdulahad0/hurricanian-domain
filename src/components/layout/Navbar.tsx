@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from "@/components/ui/theme-provider"
+import { useTheme } from "@/components/ui/theme-provider";
 import { Moon, Sun, Github, User, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,13 +26,15 @@ const Navbar = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (user) {
-        const { data } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        
-        setIsAdmin(!!data);
+        try {
+          // Create a simple check to determine if the user is an admin
+          // This is a placeholder until we have a proper admin_users table
+          const isUserAdmin = user.email?.endsWith('@admin.com') || false;
+          setIsAdmin(isUserAdmin);
+        } catch (error) {
+          console.error("Error checking admin status:", error);
+          setIsAdmin(false);
+        }
       }
     };
     

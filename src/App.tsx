@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -37,27 +40,10 @@ import DomainAuction from './pages/DomainAuction';
 
 const queryClient = new QueryClient();
 
-const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  useEffect(() => {
-    // Check local storage or system preference for theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Apply theme based on storage or system preference
-    if (savedTheme === 'dark' || (savedTheme === 'system' && systemPrefersDark)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  return <>{children}</>;
-};
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="theme">
+      <ThemeProvider>
         <CartProvider>
           <TooltipProvider>
             <Toaster />

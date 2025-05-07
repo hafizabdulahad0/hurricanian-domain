@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, AlertCircle, ShoppingCart } from 'lucide-react';
@@ -7,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
@@ -21,26 +20,6 @@ const DomainSearch = () => {
   const [apiConfigured, setApiConfigured] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
-  
-  // Check if API is configured
-  useEffect(() => {
-    const checkApiConfiguration = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('api_configurations')
-          .select('provider, integration_status')
-          .eq('integration_status', 'active')
-          .in('provider', ['godaddy', 'namecheap', 'resellerclub']);
-          
-        if (error) throw error;
-        setApiConfigured(data && data.length > 0);
-      } catch (error) {
-        console.error('Error checking API configuration:', error);
-      }
-    };
-    
-    checkApiConfiguration();
-  }, []);
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +88,7 @@ const DomainSearch = () => {
   return (
     <div className="w-full max-w-3xl mx-auto">
       {!apiConfigured && (
-        <Alert variant="warning" className="mb-4">
+        <Alert className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             This is a demonstration using sample data. The actual domain availability may differ.

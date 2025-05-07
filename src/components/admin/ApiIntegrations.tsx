@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
@@ -7,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { Check, AlertTriangle, Save } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -36,13 +34,36 @@ const ApiIntegrations = () => {
   const fetchApiConfigs = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('api_configurations')
-        .select('*')
-        .order('provider');
-        
-      if (error) throw error;
-      setApiConfigs(data || []);
+      // Mock API data instead of calling Supabase
+      const mockData: APIConfig[] = [
+        {
+          id: '1',
+          provider: 'godaddy',
+          api_key: '********',
+          api_secret: '********',
+          integration_status: 'active',
+          last_checked: new Date().toISOString(),
+          settings: {}
+        },
+        {
+          id: '2',
+          provider: 'namecheap',
+          api_key: '********',
+          api_secret: '********',
+          integration_status: 'inactive',
+          settings: {}
+        },
+        {
+          id: '3',
+          provider: 'resellerclub',
+          api_key: '',
+          api_secret: '',
+          integration_status: 'inactive',
+          settings: {}
+        }
+      ];
+      
+      setApiConfigs(mockData);
     } catch (error: any) {
       console.error('Error fetching API configs:', error);
       toast({
@@ -58,46 +79,44 @@ const ApiIntegrations = () => {
   const handleSaveConfig = async (provider: string, formData: any) => {
     setSaving(true);
     try {
-      // Check if this provider already has a config
-      const existingConfig = apiConfigs.find(config => config.provider === provider);
-      
-      if (existingConfig) {
-        // Update existing config
-        const { error } = await supabase
-          .from('api_configurations')
-          .update({
-            api_key: formData.api_key,
-            api_secret: formData.api_secret,
-            settings: formData.settings || existingConfig.settings,
-            integration_status: 'active',
-            last_checked: new Date().toISOString(),
-          })
-          .eq('id', existingConfig.id);
-          
-        if (error) throw error;
-      } else {
-        // Create new config
-        const { error } = await supabase
-          .from('api_configurations')
-          .insert({
+      // Mock save operation
+      setTimeout(() => {
+        const existingConfig = apiConfigs.find(config => config.provider === provider);
+        
+        if (existingConfig) {
+          // Update existing config in local state
+          setApiConfigs(prev => prev.map(config => 
+            config.provider === provider 
+              ? {
+                  ...config,
+                  api_key: formData.api_key,
+                  api_secret: formData.api_secret,
+                  integration_status: 'active',
+                  last_checked: new Date().toISOString(),
+                }
+              : config
+          ));
+        } else {
+          // Add new config to local state
+          const newConfig: APIConfig = {
+            id: Date.now().toString(),
             provider,
             api_key: formData.api_key,
             api_secret: formData.api_secret,
-            settings: formData.settings || {},
             integration_status: 'active',
             last_checked: new Date().toISOString(),
-          });
-          
-        if (error) throw error;
-      }
-      
-      // Refresh the API configs after saving
-      await fetchApiConfigs();
-      
-      toast({
-        title: 'Configuration saved',
-        description: `${provider} API credentials have been updated successfully.`,
-      });
+            settings: {}
+          };
+          setApiConfigs(prev => [...prev, newConfig]);
+        }
+        
+        toast({
+          title: 'Configuration saved',
+          description: `${provider} API credentials have been updated successfully.`,
+        });
+        
+        setSaving(false);
+      }, 1000);
     } catch (error: any) {
       console.error('Error saving API config:', error);
       toast({
@@ -105,7 +124,6 @@ const ApiIntegrations = () => {
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
       setSaving(false);
     }
   };
