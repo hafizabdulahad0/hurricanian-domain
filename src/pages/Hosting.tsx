@@ -1,15 +1,24 @@
-
+import { useState } from 'react';
 import ServicePage from '@/components/ServicePage';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Server, Database, Cloud, HardDrive } from 'lucide-react';
+import { Check, Server, Database, Cloud, HardDrive, ShoppingCart, ArrowRight } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Hosting = () => {
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [addedPlans, setAddedPlans] = useState<string[]>([]);
+
   const hostingPlans = [
     {
+      id: 'shared-hosting',
       name: 'Shared Hosting',
-      price: '$3.99',
+      price: 3.99,
       period: '/month',
       description: 'Perfect for small websites and blogs',
       features: [
@@ -24,8 +33,9 @@ const Hosting = () => {
       popular: false
     },
     {
+      id: 'premium-hosting',
       name: 'Premium Hosting',
-      price: '$5.99',
+      price: 5.99,
       period: '/month',
       description: 'Ideal for growing businesses and e-commerce',
       features: [
@@ -42,8 +52,9 @@ const Hosting = () => {
       popular: true
     },
     {
+      id: 'business-hosting',
       name: 'Business Hosting',
-      price: '$9.99',
+      price: 9.99,
       period: '/month',
       description: 'For high-traffic websites and applications',
       features: [
@@ -62,6 +73,36 @@ const Hosting = () => {
       popular: false
     }
   ];
+
+  const handleAddToCart = (plan) => {
+    addItem({
+      id: `hosting-${plan.id}`,
+      type: 'hosting',
+      name: `${plan.name} Plan`,
+      price: plan.price,
+      period: 12, // 12 months by default
+      details: {
+        planId: plan.id,
+        features: plan.features
+      }
+    });
+
+    setAddedPlans([...addedPlans, plan.id]);
+    
+    toast({
+      title: "Plan added to cart",
+      description: `${plan.name} plan has been added to your cart.`,
+    });
+
+    // Reset added state after 3 seconds
+    setTimeout(() => {
+      setAddedPlans(prevPlans => prevPlans.filter(id => id !== plan.id));
+    }, 3000);
+  };
+
+  const handleProceedToCheckout = () => {
+    navigate('/cart');
+  };
 
   return (
     <ServicePage
@@ -102,7 +143,7 @@ const Hosting = () => {
               
               <div className="mb-6">
                 <div className="flex items-baseline">
-                  <span className="text-3xl font-extrabold text-gray-900">{plan.price}</span>
+                  <span className="text-3xl font-extrabold text-gray-900">${plan.price}</span>
                   <span className="ml-1 text-gray-500">{plan.period}</span>
                 </div>
               </div>
@@ -117,12 +158,33 @@ const Hosting = () => {
               </ul>
               
               <Button
-                className={`mt-auto ${plan.popular ? 'bg-domainBlue hover:bg-domainBlue-dark' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
+                className={`mt-auto flex items-center justify-center gap-2 ${
+                  addedPlans.includes(plan.id)
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : plan.popular 
+                      ? 'bg-domainBlue hover:bg-domainBlue-dark' 
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+                onClick={() => handleAddToCart(plan)}
               >
-                Get Started
+                {addedPlans.includes(plan.id) ? (
+                  <>Added to Cart</>
+                ) : (
+                  <>Get Started</>
+                )}
               </Button>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Button 
+            onClick={handleProceedToCheckout}
+            className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary flex items-center gap-2"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            View Cart
+          </Button>
         </div>
       </div>
       
