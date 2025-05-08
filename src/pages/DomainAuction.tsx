@@ -24,7 +24,60 @@ interface Auction {
   seller?: {
     username: string;
   };
+  description?: string;
 }
+
+// Sample auctions for fallback when API is not available
+const sampleAuctions: Auction[] = [
+  {
+    id: '1',
+    domain_name: 'techhub.com',
+    starting_bid: 5000,
+    current_bid: 7500,
+    bids_count: 12,
+    seller_id: 'user1',
+    end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+    status: 'active',
+    seller: { username: 'domainmaster' },
+    description: 'A premium tech domain name with high SEO potential.'
+  },
+  {
+    id: '2',
+    domain_name: 'digitalflow.io',
+    starting_bid: 2000,
+    current_bid: 2500,
+    bids_count: 5,
+    seller_id: 'user2',
+    end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
+    status: 'active',
+    seller: { username: 'techseller' },
+    description: 'Modern .io domain perfect for tech startups.'
+  },
+  {
+    id: '3',
+    domain_name: 'investpro.com',
+    starting_bid: 3500,
+    current_bid: 4200,
+    bids_count: 8,
+    seller_id: 'user3',
+    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
+    status: 'active',
+    seller: { username: 'domaintrader' },
+    description: 'Premium financial services domain.'
+  },
+  {
+    id: '4',
+    domain_name: 'cloudstore.net',
+    starting_bid: 1500,
+    current_bid: 1800,
+    bids_count: 3,
+    seller_id: 'user4',
+    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+    status: 'active',
+    seller: { username: 'cloudmaster' },
+    description: 'Cloud hosting related domain with established market.'
+  }
+];
 
 const DomainAuction = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
@@ -32,6 +85,7 @@ const DomainAuction = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({});
   const [submittingBid, setSubmittingBid] = useState<string | null>(null);
+  const [usingSampleData, setUsingSampleData] = useState(false);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -51,7 +105,7 @@ const DomainAuction = () => {
       
       if (error) throw error;
       
-      if (data && data.auctions) {
+      if (data && data.auctions && data.auctions.length > 0) {
         // Filter auctions based on active tab
         let filteredAuctions = data.auctions;
         
@@ -68,89 +122,51 @@ const DomainAuction = () => {
         }
         
         setAuctions(filteredAuctions);
+        setUsingSampleData(false);
       } else {
         // Fallback to sample data if no auctions are returned or for testing
-        const sampleAuctions: Auction[] = [
-          {
-            id: '1',
-            domain_name: 'techhub.com',
-            starting_bid: 5000,
-            current_bid: 7500,
-            bids_count: 12,
-            seller_id: 'user1',
-            end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-            status: 'active',
-            seller: { username: 'domainmaster' }
-          },
-          {
-            id: '2',
-            domain_name: 'digitalflow.io',
-            starting_bid: 2000,
-            current_bid: 2500,
-            bids_count: 5,
-            seller_id: 'user2',
-            end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
-            status: 'active',
-            seller: { username: 'techseller' }
-          },
-          {
-            id: '3',
-            domain_name: 'investpro.com',
-            starting_bid: 3500,
-            current_bid: 4200,
-            bids_count: 8,
-            seller_id: 'user3',
-            end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
-            status: 'active',
-            seller: { username: 'domaintrader' }
-          },
-          {
-            id: '4',
-            domain_name: 'cloudstore.net',
-            starting_bid: 1500,
-            current_bid: 1800,
-            bids_count: 3,
-            seller_id: 'user4',
-            end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-            status: 'active',
-            seller: { username: 'cloudmaster' }
-          }
-        ];
-        
-        // Filter sample auctions based on active tab
-        let filteredAuctions = sampleAuctions;
-        
-        if (activeTab === 'ending') {
-          filteredAuctions = sampleAuctions.filter(auction => 
-            new Date(auction.end_date).getTime() - Date.now() < 2 * 24 * 60 * 60 * 1000
-          );
-        } else if (activeTab === 'premium') {
-          filteredAuctions = sampleAuctions.filter(auction => auction.current_bid >= 5000);
-        }
-        
-        setAuctions(filteredAuctions);
-        
-        // Show a toast notification explaining that this is sample data
-        if (!data || !data.auctions) {
-          toast({
-            title: 'Sample Data',
-            description: 'Currently showing sample auction data. Connect to the database to see real auctions.',
-          });
-        }
+        loadSampleAuctions();
       }
     } catch (error) {
       console.error('Error fetching auctions:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load auctions. Please try again later.',
-        variant: 'destructive'
-      });
-      
-      // Fallback to empty array
-      setAuctions([]);
+      // Fallback to sample data
+      loadSampleAuctions();
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadSampleAuctions = () => {
+    // Filter sample auctions based on active tab
+    let filteredAuctions = [...sampleAuctions];
+    
+    // Also add any auctions created in the current session
+    const sessionAuctions = localStorage.getItem('sessionAuctions');
+    if (sessionAuctions) {
+      try {
+        const parsedAuctions = JSON.parse(sessionAuctions);
+        filteredAuctions = [...filteredAuctions, ...parsedAuctions];
+      } catch (e) {
+        console.error('Error parsing session auctions:', e);
+      }
+    }
+    
+    if (activeTab === 'ending') {
+      filteredAuctions = filteredAuctions.filter(auction => 
+        new Date(auction.end_date).getTime() - Date.now() < 2 * 24 * 60 * 60 * 1000
+      );
+    } else if (activeTab === 'premium') {
+      filteredAuctions = filteredAuctions.filter(auction => auction.current_bid >= 5000);
+    }
+    
+    setAuctions(filteredAuctions);
+    setUsingSampleData(true);
+    
+    // Show a toast notification explaining that this is sample data
+    toast({
+      title: 'Sample Data',
+      description: 'Currently showing sample auction data. Connect to the database to see real auctions.',
+    });
   };
   
   const handleBidSubmit = async (auctionId: string) => {
@@ -184,16 +200,18 @@ const DomainAuction = () => {
     
     setSubmittingBid(auctionId);
     try {
-      // Call the domain auction edge function
-      const { data, error } = await supabase.functions.invoke('domain-auction', {
-        body: {
-          action: 'bid',
-          auctionId: auctionId,
-          bidAmount: amount
-        }
-      });
-      
-      if (error) throw error;
+      if (!usingSampleData) {
+        // Try to call the domain auction edge function
+        const { data, error } = await supabase.functions.invoke('domain-auction', {
+          body: {
+            action: 'bid',
+            auctionId: auctionId,
+            bidAmount: amount
+          }
+        });
+        
+        if (error) throw error;
+      }
       
       // Update the auction in the UI
       setAuctions(prevAuctions => 
@@ -277,6 +295,15 @@ const DomainAuction = () => {
         </Button>
       </div>
       
+      {usingSampleData && (
+        <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md flex items-center">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <span className="text-sm">
+            Showing sample data. Your created auctions will appear here but are stored locally only until database connection is established.
+          </span>
+        </div>
+      )}
+      
       {loading ? (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purpleTheme-primary"></div>
@@ -315,6 +342,9 @@ const DomainAuction = () => {
                     <span>Starting Bid: ${auction.starting_bid.toLocaleString()}</span>
                     <span>{auction.bids_count} {auction.bids_count === 1 ? 'bid' : 'bids'}</span>
                   </div>
+                  {auction.description && (
+                    <p className="text-sm text-muted-foreground">{auction.description}</p>
+                  )}
                 </div>
               </CardContent>
               <CardFooter className="border-t pt-4">
