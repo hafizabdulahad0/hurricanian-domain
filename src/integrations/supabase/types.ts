@@ -54,6 +54,83 @@ export type Database = {
         }
         Relationships: []
       }
+      auction_bids: {
+        Row: {
+          auction_id: string
+          bid_amount: number
+          bid_time: string
+          bidder_id: string
+          id: string
+        }
+        Insert: {
+          auction_id: string
+          bid_amount: number
+          bid_time?: string
+          bidder_id: string
+          id?: string
+        }
+        Update: {
+          auction_id?: string
+          bid_amount?: number
+          bid_time?: string
+          bidder_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_bids_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "domain_auctions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_auctions: {
+        Row: {
+          bids_count: number
+          created_at: string
+          current_bid: number
+          current_bidder: string | null
+          description: string | null
+          domain_name: string
+          end_date: string
+          id: string
+          reserve_price: number | null
+          seller_id: string
+          starting_bid: number
+          status: string
+        }
+        Insert: {
+          bids_count?: number
+          created_at?: string
+          current_bid: number
+          current_bidder?: string | null
+          description?: string | null
+          domain_name: string
+          end_date: string
+          id?: string
+          reserve_price?: number | null
+          seller_id: string
+          starting_bid: number
+          status?: string
+        }
+        Update: {
+          bids_count?: number
+          created_at?: string
+          current_bid?: number
+          current_bidder?: string | null
+          description?: string | null
+          domain_name?: string
+          end_date?: string
+          id?: string
+          reserve_price?: number | null
+          seller_id?: string
+          starting_bid?: number
+          status?: string
+        }
+        Relationships: []
+      }
       domain_searches: {
         Row: {
           available: boolean | null

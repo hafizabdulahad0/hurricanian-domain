@@ -72,39 +72,30 @@ const CreateAuction = () => {
     setLoading(true);
     
     try {
-      // Instead of using the Edge Function directly, let's create a local auction object
-      // for now as a fallback
-      const auctionData = {
+      console.log('Creating auction with data:', {
         domainName: formData.domainName,
         startingBid: startingBid,
         durationDays: parseInt(formData.durationDays),
-        description: formData.description,
-        sellerId: user.id,
-        status: 'active',
-        createdAt: new Date().toISOString()
-      };
+        description: formData.description
+      });
       
-      console.log('Creating auction with data:', auctionData);
+      // Call the edge function to create the auction
+      const { data, error } = await supabase.functions.invoke('domain-auction', {
+        body: {
+          action: 'create',
+          domainName: formData.domainName,
+          startingBid: startingBid,
+          durationDays: parseInt(formData.durationDays),
+          description: formData.description
+        }
+      });
       
-      // Try to use the edge function if available
-      try {
-        const { data, error } = await supabase.functions.invoke('domain-auction', {
-          body: {
-            action: 'create',
-            domainName: formData.domainName,
-            startingBid: startingBid,
-            durationDays: parseInt(formData.durationDays),
-            description: formData.description
-          }
-        });
-        
-        if (error) throw error;
-        console.log('Auction created successfully via edge function:', data);
-      } catch (functionError) {
-        // If edge function fails, log the error but still continue
-        // This allows us to show a success message to users even if backend isn't fully ready
-        console.error('Edge function error (non-fatal):', functionError);
+      if (error) {
+        console.error('Error from edge function:', error);
+        throw new Error(`Failed to create auction: ${error.message}`);
       }
+      
+      console.log('Auction created successfully:', data);
       
       // Show success message
       toast({
@@ -115,11 +106,11 @@ const CreateAuction = () => {
       // Redirect to domain auction page
       navigate('/domain-auction');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating auction:', error);
       toast({
         title: 'Failed to create auction',
-        description: 'An error occurred while creating your auction. Please try again.',
+        description: error.message || 'An error occurred while creating your auction. Please try again.',
         variant: 'destructive'
       });
     } finally {

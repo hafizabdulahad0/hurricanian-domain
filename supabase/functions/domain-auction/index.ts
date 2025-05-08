@@ -11,6 +11,7 @@ interface AuctionRequest {
   durationDays?: number;
   bidAmount?: number;
   auctionId?: string;
+  description?: string;
 }
 
 serve(async (req) => {
@@ -56,7 +57,11 @@ serve(async (req) => {
         // List all active auctions
         const { data: auctions, error: auctionsError } = await supabaseAdmin
           .from('domain_auctions')
-          .select('*')
+          .select(`
+            *,
+            seller:seller_id (username),
+            current_bidder:current_bidder (username)
+          `)
           .eq('status', 'active')
           .order('end_date', { ascending: true });
           
@@ -86,10 +91,10 @@ serve(async (req) => {
             {
               domain_name: auctionRequest.domainName,
               starting_bid: auctionRequest.startingBid,
-              reserve_price: auctionRequest.reservePrice || null,
               current_bid: auctionRequest.startingBid,
-              current_bidder: null,
+              reserve_price: auctionRequest.reservePrice || null,
               seller_id: user.id,
+              description: auctionRequest.description || null,
               end_date: endDate.toISOString(),
               status: 'active'
             }

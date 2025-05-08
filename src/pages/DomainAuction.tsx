@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Clock, Gavel, AlertCircle } from 'lucide-react';
+import { Clock, Gavel } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -27,65 +27,12 @@ interface Auction {
   description?: string;
 }
 
-// Sample auctions for fallback when API is not available
-const sampleAuctions: Auction[] = [
-  {
-    id: '1',
-    domain_name: 'techhub.com',
-    starting_bid: 5000,
-    current_bid: 7500,
-    bids_count: 12,
-    seller_id: 'user1',
-    end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-    status: 'active',
-    seller: { username: 'domainmaster' },
-    description: 'A premium tech domain name with high SEO potential.'
-  },
-  {
-    id: '2',
-    domain_name: 'digitalflow.io',
-    starting_bid: 2000,
-    current_bid: 2500,
-    bids_count: 5,
-    seller_id: 'user2',
-    end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
-    status: 'active',
-    seller: { username: 'techseller' },
-    description: 'Modern .io domain perfect for tech startups.'
-  },
-  {
-    id: '3',
-    domain_name: 'investpro.com',
-    starting_bid: 3500,
-    current_bid: 4200,
-    bids_count: 8,
-    seller_id: 'user3',
-    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
-    status: 'active',
-    seller: { username: 'domaintrader' },
-    description: 'Premium financial services domain.'
-  },
-  {
-    id: '4',
-    domain_name: 'cloudstore.net',
-    starting_bid: 1500,
-    current_bid: 1800,
-    bids_count: 3,
-    seller_id: 'user4',
-    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-    status: 'active',
-    seller: { username: 'cloudmaster' },
-    description: 'Cloud hosting related domain with established market.'
-  }
-];
-
 const DomainAuction = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('active');
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({});
   const [submittingBid, setSubmittingBid] = useState<string | null>(null);
-  const [usingSampleData, setUsingSampleData] = useState(false);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -98,12 +45,15 @@ const DomainAuction = () => {
   const fetchAuctions = async () => {
     setLoading(true);
     try {
-      // Try to fetch auctions from the Supabase edge function
+      // Fetch auctions from the Supabase edge function
       const { data, error } = await supabase.functions.invoke('domain-auction', {
         body: { action: 'list' }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching auctions:', error);
+        throw error;
+      }
       
       if (data && data.auctions && data.auctions.length > 0) {
         // Filter auctions based on active tab
@@ -121,52 +71,23 @@ const DomainAuction = () => {
           filteredAuctions = data.auctions.filter(auction => auction.current_bid >= 1000);
         }
         
+        console.log('Fetched auctions:', filteredAuctions);
         setAuctions(filteredAuctions);
-        setUsingSampleData(false);
       } else {
-        // Fallback to sample data if no auctions are returned or for testing
-        loadSampleAuctions();
+        console.log('No auctions found');
+        setAuctions([]);
       }
     } catch (error) {
       console.error('Error fetching auctions:', error);
-      // Fallback to sample data
-      loadSampleAuctions();
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch auctions. Please try again later.',
+        variant: 'destructive'
+      });
+      setAuctions([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadSampleAuctions = () => {
-    // Filter sample auctions based on active tab
-    let filteredAuctions = [...sampleAuctions];
-    
-    // Also add any auctions created in the current session
-    const sessionAuctions = localStorage.getItem('sessionAuctions');
-    if (sessionAuctions) {
-      try {
-        const parsedAuctions = JSON.parse(sessionAuctions);
-        filteredAuctions = [...filteredAuctions, ...parsedAuctions];
-      } catch (e) {
-        console.error('Error parsing session auctions:', e);
-      }
-    }
-    
-    if (activeTab === 'ending') {
-      filteredAuctions = filteredAuctions.filter(auction => 
-        new Date(auction.end_date).getTime() - Date.now() < 2 * 24 * 60 * 60 * 1000
-      );
-    } else if (activeTab === 'premium') {
-      filteredAuctions = filteredAuctions.filter(auction => auction.current_bid >= 5000);
-    }
-    
-    setAuctions(filteredAuctions);
-    setUsingSampleData(true);
-    
-    // Show a toast notification explaining that this is sample data
-    toast({
-      title: 'Sample Data',
-      description: 'Currently showing sample auction data. Connect to the database to see real auctions.',
-    });
   };
   
   const handleBidSubmit = async (auctionId: string) => {
@@ -200,18 +121,16 @@ const DomainAuction = () => {
     
     setSubmittingBid(auctionId);
     try {
-      if (!usingSampleData) {
-        // Try to call the domain auction edge function
-        const { data, error } = await supabase.functions.invoke('domain-auction', {
-          body: {
-            action: 'bid',
-            auctionId: auctionId,
-            bidAmount: amount
-          }
-        });
-        
-        if (error) throw error;
-      }
+      // Call the edge function to place a bid
+      const { data, error } = await supabase.functions.invoke('domain-auction', {
+        body: {
+          action: 'bid',
+          auctionId: auctionId,
+          bidAmount: amount
+        }
+      });
+      
+      if (error) throw error;
       
       // Update the auction in the UI
       setAuctions(prevAuctions => 
@@ -229,11 +148,11 @@ const DomainAuction = () => {
         title: 'Bid placed successfully',
         description: `Your bid of $${amount} for ${auction.domain_name} has been placed.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error placing bid:', error);
       toast({
         title: 'Error',
-        description: 'Failed to place bid. Please try again.',
+        description: error.message || 'Failed to place bid. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -271,6 +190,10 @@ const DomainAuction = () => {
     navigate('/create-auction');
   };
   
+  const handleRefresh = () => {
+    fetchAuctions();
+  };
+  
   return (
     <ServicePage
       title="Domain Auction"
@@ -289,20 +212,17 @@ const DomainAuction = () => {
           </TabsList>
         </Tabs>
         
-        <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" onClick={handleCreateAuction}>
-          <Gavel className="mr-2 h-4 w-4" />
-          Create Auction
-        </Button>
-      </div>
-      
-      {usingSampleData && (
-        <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md flex items-center">
-          <AlertCircle className="h-4 w-4 mr-2" />
-          <span className="text-sm">
-            Showing sample data. Your created auctions will appear here but are stored locally only until database connection is established.
-          </span>
+        <div className="space-x-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          
+          <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary" onClick={handleCreateAuction}>
+            <Gavel className="mr-2 h-4 w-4" />
+            Create Auction
+          </Button>
         </div>
-      )}
+      </div>
       
       {loading ? (
         <div className="flex justify-center items-center py-12">
@@ -381,11 +301,11 @@ const DomainAuction = () => {
       
       <div className="mt-12 p-4 border rounded-lg bg-muted/20">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+          <Clock className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div>
             <h3 className="font-medium">Auction Information</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              All auctions run for 7 days by default. When you win an auction, you'll be guided through the domain transfer process.
+              All auctions run for the selected duration. When you win an auction, you'll be guided through the domain transfer process.
               A non-refundable 5% buyer's premium is added to the final bid amount. All sales are final.
             </p>
           </div>
