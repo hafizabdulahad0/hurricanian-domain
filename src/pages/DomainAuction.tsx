@@ -10,6 +10,7 @@ import { Clock, Gavel, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Auction {
   id: string;
@@ -34,64 +35,109 @@ const DomainAuction = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     fetchAuctions();
-  }, []);
+  }, [activeTab]);
   
   const fetchAuctions = async () => {
     setLoading(true);
     try {
-      // In a real implementation, this would fetch auction data from Supabase
-      // Simulating auction data for now
-      const sampleAuctions: Auction[] = [
-        {
-          id: '1',
-          domain_name: 'techhub.com',
-          starting_bid: 5000,
-          current_bid: 7500,
-          bids_count: 12,
-          seller_id: 'user1',
-          end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-          status: 'active',
-          seller: { username: 'domainmaster' }
-        },
-        {
-          id: '2',
-          domain_name: 'digitalflow.io',
-          starting_bid: 2000,
-          current_bid: 2500,
-          bids_count: 5,
-          seller_id: 'user2',
-          end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
-          status: 'active',
-          seller: { username: 'techseller' }
-        },
-        {
-          id: '3',
-          domain_name: 'investpro.com',
-          starting_bid: 3500,
-          current_bid: 4200,
-          bids_count: 8,
-          seller_id: 'user3',
-          end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
-          status: 'active',
-          seller: { username: 'domaintrader' }
-        },
-        {
-          id: '4',
-          domain_name: 'cloudstore.net',
-          starting_bid: 1500,
-          current_bid: 1800,
-          bids_count: 3,
-          seller_id: 'user4',
-          end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-          status: 'active',
-          seller: { username: 'cloudmaster' }
-        }
-      ];
+      // Try to fetch auctions from the Supabase edge function
+      const { data, error } = await supabase.functions.invoke('domain-auction', {
+        body: { action: 'list' }
+      });
       
-      setAuctions(sampleAuctions);
+      if (error) throw error;
+      
+      if (data && data.auctions) {
+        // Filter auctions based on active tab
+        let filteredAuctions = data.auctions;
+        
+        if (activeTab === 'ending') {
+          const now = new Date();
+          const twoDaysFromNow = new Date();
+          twoDaysFromNow.setDate(now.getDate() + 2);
+          
+          filteredAuctions = data.auctions.filter(auction => 
+            new Date(auction.end_date) <= twoDaysFromNow && new Date(auction.end_date) > now
+          );
+        } else if (activeTab === 'premium') {
+          filteredAuctions = data.auctions.filter(auction => auction.current_bid >= 1000);
+        }
+        
+        setAuctions(filteredAuctions);
+      } else {
+        // Fallback to sample data if no auctions are returned or for testing
+        const sampleAuctions: Auction[] = [
+          {
+            id: '1',
+            domain_name: 'techhub.com',
+            starting_bid: 5000,
+            current_bid: 7500,
+            bids_count: 12,
+            seller_id: 'user1',
+            end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+            status: 'active',
+            seller: { username: 'domainmaster' }
+          },
+          {
+            id: '2',
+            domain_name: 'digitalflow.io',
+            starting_bid: 2000,
+            current_bid: 2500,
+            bids_count: 5,
+            seller_id: 'user2',
+            end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
+            status: 'active',
+            seller: { username: 'techseller' }
+          },
+          {
+            id: '3',
+            domain_name: 'investpro.com',
+            starting_bid: 3500,
+            current_bid: 4200,
+            bids_count: 8,
+            seller_id: 'user3',
+            end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
+            status: 'active',
+            seller: { username: 'domaintrader' }
+          },
+          {
+            id: '4',
+            domain_name: 'cloudstore.net',
+            starting_bid: 1500,
+            current_bid: 1800,
+            bids_count: 3,
+            seller_id: 'user4',
+            end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+            status: 'active',
+            seller: { username: 'cloudmaster' }
+          }
+        ];
+        
+        // Filter sample auctions based on active tab
+        let filteredAuctions = sampleAuctions;
+        
+        if (activeTab === 'ending') {
+          filteredAuctions = sampleAuctions.filter(auction => 
+            new Date(auction.end_date).getTime() - Date.now() < 2 * 24 * 60 * 60 * 1000
+          );
+        } else if (activeTab === 'premium') {
+          filteredAuctions = sampleAuctions.filter(auction => auction.current_bid >= 5000);
+        }
+        
+        setAuctions(filteredAuctions);
+        
+        // Show a toast notification explaining that this is sample data
+        if (!data || !data.auctions) {
+          toast({
+            title: 'Sample Data',
+            description: 'Currently showing sample auction data. Connect to the database to see real auctions.',
+          });
+        }
+      }
     } catch (error) {
       console.error('Error fetching auctions:', error);
       toast({
@@ -99,6 +145,9 @@ const DomainAuction = () => {
         description: 'Failed to load auctions. Please try again later.',
         variant: 'destructive'
       });
+      
+      // Fallback to empty array
+      setAuctions([]);
     } finally {
       setLoading(false);
     }
@@ -107,7 +156,7 @@ const DomainAuction = () => {
   const handleBidSubmit = async (auctionId: string) => {
     if (!user) {
       // Redirect to login
-      window.location.href = `/auth?redirect=/domain-auction`;
+      navigate(`/auth?redirect=/domain-auction`);
       return;
     }
     
@@ -135,9 +184,16 @@ const DomainAuction = () => {
     
     setSubmittingBid(auctionId);
     try {
-      // In a real implementation, this would call the domain auction API
-      // Simulate API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the domain auction edge function
+      const { data, error } = await supabase.functions.invoke('domain-auction', {
+        body: {
+          action: 'bid',
+          auctionId: auctionId,
+          bidAmount: amount
+        }
+      });
+      
+      if (error) throw error;
       
       // Update the auction in the UI
       setAuctions(prevAuctions => 
@@ -190,11 +246,11 @@ const DomainAuction = () => {
   const handleCreateAuction = () => {
     if (!user) {
       // Redirect to login
-      window.location.href = `/auth?redirect=/domain-auction`;
+      navigate(`/auth?redirect=/create-auction`);
       return;
     }
     
-    window.location.href = '/create-auction';
+    navigate('/create-auction');
   };
   
   return (

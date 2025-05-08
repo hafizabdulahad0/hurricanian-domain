@@ -37,6 +37,7 @@ import Checkout from './pages/Checkout';
 import PaymentSuccess from './pages/PaymentSuccess';
 import AdminDashboard from './pages/AdminDashboard';
 import DomainAuction from './pages/DomainAuction';
+import CreateAuction from './pages/CreateAuction';
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ function App() {
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/domain-auction" element={<DomainAuction />} />
+                  <Route path="/create-auction" element={<CreateAuction />} />
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>
