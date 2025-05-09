@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Clock, Gavel } from 'lucide-react';
+import { Clock, Gavel, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +33,7 @@ const DomainAuction = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({});
   const [submittingBid, setSubmittingBid] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,6 +45,8 @@ const DomainAuction = () => {
   
   const fetchAuctions = async () => {
     setLoading(true);
+    setError(null); // Clear previous errors
+    
     try {
       // Fetch auctions from the Supabase edge function
       const { data, error } = await supabase.functions.invoke('domain-auction', {
@@ -52,6 +55,7 @@ const DomainAuction = () => {
       
       if (error) {
         console.error('Error fetching auctions:', error);
+        setError('Failed to fetch auctions. Please try again later.');
         throw error;
       }
       
@@ -64,11 +68,11 @@ const DomainAuction = () => {
           const twoDaysFromNow = new Date();
           twoDaysFromNow.setDate(now.getDate() + 2);
           
-          filteredAuctions = data.auctions.filter(auction => 
+          filteredAuctions = data.auctions.filter((auction: Auction) => 
             new Date(auction.end_date) <= twoDaysFromNow && new Date(auction.end_date) > now
           );
         } else if (activeTab === 'premium') {
-          filteredAuctions = data.auctions.filter(auction => auction.current_bid >= 1000);
+          filteredAuctions = data.auctions.filter((auction: Auction) => auction.current_bid >= 1000);
         }
         
         console.log('Fetched auctions:', filteredAuctions);
@@ -77,13 +81,9 @@ const DomainAuction = () => {
         console.log('No auctions found');
         setAuctions([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching auctions:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch auctions. Please try again later.',
-        variant: 'destructive'
-      });
+      setError('Failed to fetch auctions. Please try again later.');
       setAuctions([]);
     } finally {
       setLoading(false);
@@ -214,6 +214,7 @@ const DomainAuction = () => {
         
         <div className="space-x-2">
           <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Refreshing...' : 'Refresh'}
           </Button>
           
@@ -223,6 +224,13 @@ const DomainAuction = () => {
           </Button>
         </div>
       </div>
+      
+      {error && (
+        <div className="bg-destructive/15 text-destructive border border-destructive/30 rounded-md p-4 mb-6">
+          <p className="font-medium">{error}</p>
+          <p className="text-sm mt-1">Try refreshing the page or come back later.</p>
+        </div>
+      )}
       
       {loading ? (
         <div className="flex justify-center items-center py-12">

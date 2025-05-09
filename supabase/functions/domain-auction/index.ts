@@ -54,14 +54,10 @@ serve(async (req) => {
     
     switch(auctionRequest.action) {
       case 'list': 
-        // List all active auctions
+        // List all active auctions - without using join relationships
         const { data: auctions, error: auctionsError } = await supabaseAdmin
           .from('domain_auctions')
-          .select(`
-            *,
-            seller:seller_id (username),
-            current_bidder:current_bidder (username)
-          `)
+          .select('*')
           .eq('status', 'active')
           .order('end_date', { ascending: true });
           
@@ -69,7 +65,34 @@ serve(async (req) => {
           throw auctionsError;
         }
         
-        response = { success: true, auctions };
+        // Now fetch seller usernames separately
+        const sellerIds = auctions.map(auction => auction.seller_id);
+        const bidderIds = auctions.filter(a => a.current_bidder).map(a => a.current_bidder);
+        const uniqueUserIds = [...new Set([...sellerIds, ...bidderIds.filter(id => id)])];
+        
+        let usernameMap = {};
+        if (uniqueUserIds.length > 0) {
+          const { data: profiles, error: profilesError } = await supabaseAdmin
+            .from('profiles')
+            .select('id, username')
+            .in('id', uniqueUserIds);
+            
+          if (!profilesError && profiles) {
+            usernameMap = profiles.reduce((acc, profile) => {
+              acc[profile.id] = profile.username;
+              return acc;
+            }, {});
+          }
+        }
+        
+        // Add seller and bidder username to each auction
+        const auctionsWithUsernames = auctions.map(auction => ({
+          ...auction,
+          seller: { username: usernameMap[auction.seller_id] || 'Anonymous' },
+          current_bidder_username: auction.current_bidder ? usernameMap[auction.current_bidder] || 'Anonymous' : null
+        }));
+        
+        response = { success: true, auctions: auctionsWithUsernames };
         break;
         
       case 'create':

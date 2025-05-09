@@ -68,19 +68,27 @@ Deno.serve(async (req) => {
         // Extract JWT token
         const token = authHeader.replace('Bearer ', '');
         
-        // Verify the JWT and get user ID
-        const { data: userData, error: userError } = await supabase.auth.getUser(token);
-        
-        if (!userError && userData?.user) {
-          // Store search history for each extension
-          for (const ext of extensions) {
-            await supabase.from('domain_searches').insert({
-              domain_name: domain,
-              extension: ext,
-              available: results.find(r => r.domain === domain + ext)?.available,
-              user_id: userData.user.id
-            });
+        try {
+          // Verify the JWT and get user ID
+          const { data: userData, error: userError } = await supabase.auth.getUser(token);
+          
+          if (!userError && userData?.user) {
+            // Store search history for each extension
+            for (const ext of extensions) {
+              const searchResult = results.find(r => r.domain === domain + ext);
+              if (searchResult) {
+                await supabase.from('domain_searches').insert({
+                  domain_name: domain,
+                  extension: ext,
+                  available: searchResult.available,
+                  user_id: userData.user.id
+                });
+              }
+            }
           }
+        } catch (authError) {
+          // Just log the error but don't fail the request
+          console.error('Error authenticating user:', authError);
         }
       }
     } catch (dbError) {
