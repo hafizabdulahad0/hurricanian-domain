@@ -30,41 +30,87 @@ Deno.serve(async (req) => {
 
     console.log(`Processing domain search for: ${domain} with extensions: ${extensions.join(', ')}`);
 
-    // Generate domain availability results
-    const results = extensions.map((ext: string) => {
-      // Deterministic availability based on domain name and extension
-      // This ensures consistent results for the same domain+extension combination
-      const combined = domain + ext;
-      const hash = Array.from(combined).reduce((sum, char) => sum + char.charCodeAt(0), 0);
-      const available = hash % 10 > 3; // 60% chance of availability
+    // Get Supabase admin client from environment
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get domain API configuration
+    const { data: apiConfigs, error: configError } = await supabase
+      .from('api_configurations')
+      .select('*')
+      .eq('api_type', 'domain')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    if (configError) {
+      console.error('Error fetching API configuration:', configError);
+    }
+    
+    let results = [];
+    
+    // If we have a domain API configuration, use it
+    if (apiConfigs && apiConfigs.length > 0) {
+      const apiConfig = apiConfigs[0];
       
-      // Price determination based on extension and domain length
-      let basePrice = 9.99;
-      if (ext === '.io') basePrice = 39.99;
-      else if (ext === '.org') basePrice = 12.99;
-      else if (ext === '.net') basePrice = 11.99;
+      console.log(`Using ${apiConfig.provider} API for domain search`);
       
-      // Adjust price based on domain length (shorter domains cost more)
-      const lengthFactor = Math.max(0.8, Math.min(1.5, 10 / domain.length));
-      const price = Math.round((basePrice * lengthFactor) * 100) / 100;
-      
-      return {
-        domain: domain + ext,
-        available,
-        price: available ? price : null
-      };
-    });
+      // Here's where you would implement the actual API call to the domain registrar
+      // This is a placeholder for demonstration purposes
+      try {
+        // Different implementation based on the provider
+        switch(apiConfig.provider.toLowerCase()) {
+          case 'godaddy':
+            // results = await searchDomainsWithGodaddy(domain, extensions, apiConfig.api_key);
+            console.log('Would call GoDaddy API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            break;
+          case 'namecheap':
+            // results = await searchDomainsWithNamecheap(domain, extensions, apiConfig.api_key);
+            console.log('Would call Namecheap API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            break;
+          case 'resellerclub':
+            // results = await searchDomainsWithResellerClub(domain, extensions, apiConfig.api_key);
+            console.log('Would call ResellerClub API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            break;
+          default:
+            console.log(`Provider ${apiConfig.provider} not implemented yet, using mock data`);
+        }
+      } catch (apiError) {
+        console.error(`Error calling ${apiConfig.provider} API:`, apiError);
+      }
+    }
+    
+    // If we couldn't get real data from the API (or if there's no API config),
+    // fall back to generating mock domain results
+    if (results.length === 0) {
+      results = extensions.map((ext: string) => {
+        // Deterministic availability based on domain name and extension
+        const combined = domain + ext;
+        const hash = Array.from(combined).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const available = hash % 10 > 3; // 60% chance of availability
+        
+        // Price determination based on extension and domain length
+        let basePrice = 9.99;
+        if (ext === '.io') basePrice = 39.99;
+        else if (ext === '.org') basePrice = 12.99;
+        else if (ext === '.net') basePrice = 11.99;
+        
+        const lengthFactor = Math.max(0.8, Math.min(1.5, 10 / domain.length));
+        const price = Math.round((basePrice * lengthFactor) * 100) / 100;
+        
+        return {
+          domain: domain + ext,
+          available,
+          price: available ? price : null
+        };
+      });
+    }
     
     // For authenticated users, store search history in database
     try {
-      // Get Supabase admin client from environment
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
       const authHeader = req.headers.get('authorization');
       
       if (supabaseUrl && supabaseKey && authHeader) {
-        const supabase = createClient(supabaseUrl, supabaseKey);
-        
         // Extract JWT token
         const token = authHeader.replace('Bearer ', '');
         
@@ -87,12 +133,10 @@ Deno.serve(async (req) => {
             }
           }
         } catch (authError) {
-          // Just log the error but don't fail the request
           console.error('Error authenticating user:', authError);
         }
       }
     } catch (dbError) {
-      // Don't fail the request if history logging fails
       console.error('Error storing domain search history:', dbError);
     }
     
@@ -109,3 +153,55 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+// The following functions would contain the actual API implementation
+// These are just placeholders and would need to be implemented with real API calls
+
+/*
+async function searchDomainsWithGodaddy(domain, extensions, apiKey) {
+  // Example implementation for GoDaddy API
+  // Real implementation would make HTTP requests to the GoDaddy API
+  const results = [];
+  
+  for (const ext of extensions) {
+    // Call GoDaddy API to check availability and get pricing
+    const response = await fetch(
+      `https://api.godaddy.com/v1/domains/available?domain=${domain}${ext}`, 
+      {
+        headers: {
+          'Authorization': `sso-key ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    const data = await response.json();
+    
+    results.push({
+      domain: domain + ext,
+      available: data.available,
+      price: data.available ? data.price : null
+    });
+  }
+  
+  return results;
+}
+
+async function searchDomainsWithNamecheap(domain, extensions, apiKey) {
+  // Example implementation for Namecheap API
+  // Real implementation would make HTTP requests to the Namecheap API
+  
+  // ...implementation...
+  
+  return [];
+}
+
+async function searchDomainsWithResellerClub(domain, extensions, apiKey) {
+  // Example implementation for ResellerClub API
+  // Real implementation would make HTTP requests to the ResellerClub API
+  
+  // ...implementation...
+  
+  return [];
+}
+*/
