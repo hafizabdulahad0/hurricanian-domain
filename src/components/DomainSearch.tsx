@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, AlertCircle, ShoppingCart } from 'lucide-react';
+import { Search, AlertCircle, Loader } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
@@ -17,47 +19,65 @@ const DomainSearch = () => {
     '.io': true
   });
   const [isSearching, setIsSearching] = useState(false);
-  const [apiConfigured, setApiConfigured] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
+    setError(null);
+    
+    if (!domain) {
+      setError('Please enter a domain name');
+      setIsSearching(false);
+      return;
+    }
     
     // Get selected extensions
     const selectedExtensions = Object.entries(extensionChecks)
       .filter(([_, isChecked]) => isChecked)
       .map(([ext]) => ext);
       
+    if (selectedExtensions.length === 0) {
+      setError('Please select at least one extension');
+      setIsSearching(false);
+      return;
+    }
+      
     try {
-      // In a real implementation, this would call the domain registrar API
-      // via a server-side endpoint to check availability
-      
-      // For now, we'll simulate the API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate results
-      const results = selectedExtensions.map(ext => ({
-        domain: domain + ext,
-        available: Math.random() > 0.3, // 70% chance of availability
-        price: ext === '.io' ? 39.99 : ext === '.org' ? 12.99 : ext === '.net' ? 11.99 : 9.99
-      }));
-      
-      // Show results
-      toast({
-        title: "Search completed",
-        description: `Found ${results.filter(r => r.available).length} available domains.`,
+      // Call the domain-search edge function
+      const { data, error: apiError } = await supabase.functions.invoke('domain-search', {
+        body: {
+          domain: domain.trim().toLowerCase(),
+          extensions: selectedExtensions
+        }
       });
       
-      // Redirect to search results page with the results
-      window.location.href = `/domain-search?query=${domain}&results=${JSON.stringify(results)}`;
+      if (apiError) {
+        throw new Error(apiError.message || 'Failed to search domains');
+      }
       
-    } catch (error) {
+      if (!data || !data.results) {
+        throw new Error('Invalid response from search API');
+      }
+      
+      // Show success message
+      toast({
+        title: "Search completed",
+        description: `Found ${data.results.filter((r: any) => r.available).length} available domains.`,
+      });
+      
+      // Navigate to search results page with the results
+      navigate(`/domain-search?query=${encodeURIComponent(domain)}&results=${encodeURIComponent(JSON.stringify(data.results))}`);
+      
+    } catch (error: any) {
       console.error('Error searching domains:', error);
+      setError(error.message || "Failed to fetch domains. Please try again later.");
       toast({
         title: "Search failed",
-        description: "An error occurred while searching for domains.",
+        description: error.message || "An error occurred while searching for domains.",
         variant: "destructive"
       });
     } finally {
@@ -72,26 +92,13 @@ const DomainSearch = () => {
     }));
   };
   
-  const addDomainToCart = (domain: string, price: number) => {
-    addItem({
-      id: `domain-${domain}-${Date.now()}`,
-      type: 'domain',
-      name: domain,
-      price: price,
-      period: 12, // 12 months (1 year)
-      details: {
-        registrationType: 'new'
-      }
-    });
-  };
-  
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {!apiConfigured && (
-        <Alert className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            This is a demonstration using sample data. The actual domain availability may differ.
+      {error && (
+        <Alert className="mb-4 bg-red-50 border-red-200">
+          <AlertCircle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-700">
+            {error}
           </AlertDescription>
         </Alert>
       )}
@@ -113,7 +120,7 @@ const DomainSearch = () => {
           >
             {isSearching ? (
               <div className="flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <Loader className="animate-spin rounded-full h-5 w-5 mr-2" />
                 <span>Searching</span>
               </div>
             ) : (

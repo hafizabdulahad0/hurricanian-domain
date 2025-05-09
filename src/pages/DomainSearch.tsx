@@ -6,9 +6,10 @@ import DomainSearchComponent from '@/components/DomainSearch';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Heart, Search } from 'lucide-react';
+import { ShoppingCart, Heart, Search, AlertCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface DomainResult {
   domain: string;
@@ -19,6 +20,7 @@ interface DomainResult {
 const DomainSearch = () => {
   const [searchResults, setSearchResults] = useState<DomainResult[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { addItem } = useCart();
@@ -36,11 +38,16 @@ const DomainSearch = () => {
     
     if (results) {
       try {
-        const parsedResults = JSON.parse(results);
+        const parsedResults = JSON.parse(decodeURIComponent(results));
         setSearchResults(parsedResults);
+        setError(null);
       } catch (error) {
         console.error('Error parsing search results:', error);
+        setError('Could not load search results. Please try searching again.');
       }
+    } else if (query) {
+      // If we have a query but no results, that's an error state
+      setError('No search results found. Please try again with different criteria.');
     }
   }, [location.search]);
   
@@ -88,6 +95,15 @@ const DomainSearch = () => {
         <DomainSearchComponent />
       </div>
       
+      {error && (
+        <Alert className="max-w-3xl mx-auto mb-4 bg-red-50 border-red-200">
+          <AlertCircle className="h-4 w-4 text-red-500" />
+          <AlertDescription className="text-red-700">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {searchResults.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-center mb-8">
@@ -110,9 +126,11 @@ const DomainSearch = () => {
                   </div>
                   
                   <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                    <p className="text-xl font-bold text-purpleTheme-primary mb-3 md:mb-0">
-                      ${result.price}/yr
-                    </p>
+                    {result.available && (
+                      <p className="text-xl font-bold text-purpleTheme-primary mb-3 md:mb-0">
+                        ${result.price}/yr
+                      </p>
+                    )}
                     
                     {result.available ? (
                       <div className="flex space-x-2">
