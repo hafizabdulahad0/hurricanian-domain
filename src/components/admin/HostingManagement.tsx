@@ -29,14 +29,16 @@ const HostingManagement = () => {
 
   const fetchHostingApis = async () => {
     try {
-      const { data, error } = await (supabase
+      // Fix the type issue by using a more explicit typing approach
+      const { data, error } = await supabase
         .from('api_configurations')
         .select('*')
-        .eq('api_type', 'hosting') as any);
+        .eq('api_type', 'hosting');
         
       if (error) throw error;
       
-      setHostingApis(data || []);
+      // Safely cast data to APIConfig[] type
+      setHostingApis(data as APIConfig[] || []);
     } catch (error: any) {
       console.error('Error fetching hosting APIs:', error);
       toast({
