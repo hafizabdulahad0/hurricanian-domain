@@ -60,10 +60,10 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Use effect to handle redirection and toast
+  // Fix: Use effect to handle redirection and toast ONLY when admin status changes
   useEffect(() => {
     // Only show toast and redirect if loading is complete and user is not admin
-    if (!loading && (!isAdmin || !user)) {
+    if (!loading && isAdmin === false && user !== null) {
       toast({
         title: "Access Denied",
         description: "You don't have permission to access this page.",
