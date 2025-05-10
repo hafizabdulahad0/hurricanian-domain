@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,16 +32,16 @@ const HostingManagement = () => {
 
   const fetchHostingApis = async () => {
     try {
-      // Fix: Bypass type checking for the query operation by using any
-      const { data, error } = await supabase
-        .from('api_configurations')
+      // Use type assertion before calling methods to avoid deep type instantiation
+      const response = await (supabase
+        .from('api_configurations') as any)
         .select('*')
-        .eq('api_type', 'hosting') as any;
+        .eq('api_type', 'hosting');
       
-      if (error) throw error;
+      if (response.error) throw response.error;
       
       // Safely cast the result to our expected type
-      const apiData = (data || []) as APIConfig[];
+      const apiData = (response.data || []) as APIConfig[];
       setHostingApis(apiData);
     } catch (error: any) {
       console.error('Error fetching hosting APIs:', error);
