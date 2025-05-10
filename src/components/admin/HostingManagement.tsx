@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,16 +32,18 @@ const HostingManagement = () => {
 
   const fetchHostingApis = async () => {
     try {
-      // Use any type to bypass TypeScript's deep instantiation error
-      const { data, error } = await (supabase
+      // Using explicit typecasting to avoid TypeScript's deep instantiation error
+      const response = await supabase
         .from('api_configurations')
         .select('*')
-        .eq('api_type', 'hosting') as any);
-        
-      if (error) throw error;
+        .eq('api_type', 'hosting');
       
-      // Cast the data to our interface type after we fetch it
-      setHostingApis(data || []);
+      // Handle error separately
+      if (response.error) throw response.error;
+      
+      // Process data with explicit type assertions
+      const apiData: APIConfig[] = (response.data || []) as APIConfig[];
+      setHostingApis(apiData);
     } catch (error: any) {
       console.error('Error fetching hosting APIs:', error);
       toast({
