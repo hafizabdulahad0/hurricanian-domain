@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +8,16 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-type APIConfig = {
+// Updated interface to make api_type optional and match the database schema
+interface APIConfig {
   id: string;
   provider: string;
   api_key: string;
-  api_type: string;
+  api_type?: string | null; // Make this optional
   integration_status: string | null;
-};
+  created_at?: string; // These fields might be present but not required for our component
+  updated_at?: string;
+}
 
 const HostingManagement = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -29,7 +31,7 @@ const HostingManagement = () => {
 
   const fetchHostingApis = async () => {
     try {
-      // Fix the type issue by using a more explicit typing approach
+      // Explicitly type the response to avoid deep instantiation issues
       const { data, error } = await supabase
         .from('api_configurations')
         .select('*')
@@ -37,8 +39,8 @@ const HostingManagement = () => {
         
       if (error) throw error;
       
-      // Safely cast data to APIConfig[] type
-      setHostingApis(data as APIConfig[] || []);
+      // First cast to unknown, then to our interface type to avoid type mismatch
+      setHostingApis((data || []) as unknown as APIConfig[]);
     } catch (error: any) {
       console.error('Error fetching hosting APIs:', error);
       toast({
