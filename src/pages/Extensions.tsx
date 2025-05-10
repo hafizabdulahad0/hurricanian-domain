@@ -1,29 +1,15 @@
-
 import ServicePage from '@/components/ServicePage';
 import { Button } from '@/components/ui/button';
 import { FileUp, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
 const Extensions = () => {
-  return (
-    <ServicePage
-      title="New Domain Extensions"
-      description="Discover the latest domain extensions to find the perfect fit for your website."
-      ctaTitle="Ready to Secure Your Domain?"
-      ctaDescription="Find and register your domain with the perfect extension now."
-      ctaButtonText="Search Domains"
-      ctaButtonLink="/domain-search"
-    >
+  return <ServicePage title="New Domain Extensions" description="Discover the latest domain extensions to find the perfect fit for your website." ctaTitle="Ready to Secure Your Domain?" ctaDescription="Find and register your domain with the perfect extension now." ctaButtonText="Search Domains" ctaButtonLink="/domain-search">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-12">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-100 mb-12 bg-inherit">
           <h2 className="text-2xl font-bold mb-6">Find Your Perfect Extension</h2>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <Input
-              type="text"
-              placeholder="Search for domain extensions"
-              className="flex-1"
-            />
+            <Input type="text" placeholder="Search for domain extensions" className="flex-1" />
             <Button className="bg-domainBlue hover:bg-domainBlue-dark">
               <Search className="mr-2 h-4 w-4" />
               <span>Search</span>
@@ -35,26 +21,59 @@ const Extensions = () => {
           <h2 className="text-2xl font-bold mb-6">Popular New Extensions</h2>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {[
-              { ext: '.app', price: '$14.99/yr', desc: 'For applications' },
-              { ext: '.tech', price: '$34.99/yr', desc: 'For tech companies' },
-              { ext: '.store', price: '$19.99/yr', desc: 'For e-commerce' },
-              { ext: '.io', price: '$39.99/yr', desc: 'For tech startups' },
-              { ext: '.ai', price: '$79.99/yr', desc: 'For AI companies' },
-              { ext: '.dev', price: '$15.99/yr', desc: 'For developers' },
-              { ext: '.design', price: '$29.99/yr', desc: 'For designers' },
-              { ext: '.cloud', price: '$19.99/yr', desc: 'For cloud services' },
-              { ext: '.digital', price: '$24.99/yr', desc: 'For digital brands' },
-              { ext: '.shop', price: '$19.99/yr', desc: 'For retail' },
-              { ext: '.blog', price: '$19.99/yr', desc: 'For blogs' },
-              { ext: '.agency', price: '$19.99/yr', desc: 'For agencies' },
-            ].map((item, index) => (
-              <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+            {[{
+            ext: '.app',
+            price: '$14.99/yr',
+            desc: 'For applications'
+          }, {
+            ext: '.tech',
+            price: '$34.99/yr',
+            desc: 'For tech companies'
+          }, {
+            ext: '.store',
+            price: '$19.99/yr',
+            desc: 'For e-commerce'
+          }, {
+            ext: '.io',
+            price: '$39.99/yr',
+            desc: 'For tech startups'
+          }, {
+            ext: '.ai',
+            price: '$79.99/yr',
+            desc: 'For AI companies'
+          }, {
+            ext: '.dev',
+            price: '$15.99/yr',
+            desc: 'For developers'
+          }, {
+            ext: '.design',
+            price: '$29.99/yr',
+            desc: 'For designers'
+          }, {
+            ext: '.cloud',
+            price: '$19.99/yr',
+            desc: 'For cloud services'
+          }, {
+            ext: '.digital',
+            price: '$24.99/yr',
+            desc: 'For digital brands'
+          }, {
+            ext: '.shop',
+            price: '$19.99/yr',
+            desc: 'For retail'
+          }, {
+            ext: '.blog',
+            price: '$19.99/yr',
+            desc: 'For blogs'
+          }, {
+            ext: '.agency',
+            price: '$19.99/yr',
+            desc: 'For agencies'
+          }].map((item, index) => <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                 <p className="text-xl font-bold text-gray-900 mb-1">{item.ext}</p>
                 <p className="text-domainBlue font-medium">{item.price}</p>
                 <p className="text-gray-500 text-sm">{item.desc}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
         
@@ -210,8 +229,6 @@ const Extensions = () => {
           </div>
         </div>
       </div>
-    </ServicePage>
-  );
+    </ServicePage>;
 };
-
 export default Extensions;
