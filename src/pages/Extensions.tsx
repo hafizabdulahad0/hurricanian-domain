@@ -70,7 +70,7 @@ const Extensions = () => {
             price: '$19.99/yr',
             desc: 'For agencies'
           }].map((item, index) => <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <p className="text-xl font-bold text-gray-900 mb-1">{item.ext}</p>
+                <p className="text-xl font-bold mb-1 text-inherit">{item.ext}</p>
                 <p className="text-domainBlue font-medium">{item.price}</p>
                 <p className="text-gray-500 text-sm">{item.desc}</p>
               </div>)}
