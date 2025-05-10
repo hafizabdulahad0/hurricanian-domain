@@ -141,34 +141,79 @@ const AdminDashboard = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <Card className="bg-card text-card-foreground">
-              <CardHeader>
-                <CardTitle>
-                  {activeTab === 'api' && 'API Integrations'}
-                  {activeTab === 'domains' && 'Domain Management'}
-                  {activeTab === 'hosting' && 'Hosting Management'}
-                  {activeTab === 'auctions' && 'Auction Management'}
-                  {activeTab === 'users' && 'User Management'}
-                  {activeTab === 'settings' && 'Settings'}
-                </CardTitle>
-                <CardDescription>
-                  {activeTab === 'api' && 'Configure domain and hosting API connections'}
-                  {activeTab === 'domains' && 'Manage domain products and pricing'}
-                  {activeTab === 'hosting' && 'Manage hosting plans and services'}
-                  {activeTab === 'auctions' && 'Manage domain auctions'}
-                  {activeTab === 'users' && 'Manage user accounts and permissions'}
-                  {activeTab === 'settings' && 'Configure system settings'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {activeTab === 'api' && <ApiIntegrations />}
-                {activeTab === 'domains' && <DomainManagement />}
-                {activeTab === 'hosting' && <HostingManagement />}
-                {activeTab === 'auctions' && <AuctionManagement />}
-                {activeTab === 'users' && <UserManagement />}
-                {activeTab === 'settings' && <Settings />}
-              </CardContent>
-            </Card>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsContent value="api">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>API Integrations</CardTitle>
+                    <CardDescription>Configure domain and hosting API connections</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ApiIntegrations />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="domains">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>Domain Management</CardTitle>
+                    <CardDescription>Manage domain products and pricing</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <DomainManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="hosting">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>Hosting Management</CardTitle>
+                    <CardDescription>Manage hosting plans and services</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <HostingManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="auctions">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>Auction Management</CardTitle>
+                    <CardDescription>Manage domain auctions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <AuctionManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="users">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Manage user accounts and permissions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <UserManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="settings">
+                <Card className="bg-card text-card-foreground">
+                  <CardHeader>
+                    <CardTitle>Settings</CardTitle>
+                    <CardDescription>Configure system settings</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Settings />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

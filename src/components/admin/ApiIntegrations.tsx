@@ -16,6 +16,7 @@ type APIConfig = {
   provider: string;
   api_key: string;
   api_type: string;
+  api_secret?: string;
   integration_status: string | null;
   created_at: string;
   updated_at: string;
@@ -26,6 +27,7 @@ const ApiIntegrations = () => {
   const [loading, setLoading] = useState(true);
   const [provider, setProvider] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [apiSecret, setApiSecret] = useState('');
   const [apiType, setApiType] = useState('domain'); // 'domain' or 'hosting'
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -72,15 +74,23 @@ const ApiIntegrations = () => {
     
     setIsSaving(true);
     try {
+      // Create the API configuration object
+      const apiConfig: any = {
+        provider,
+        api_key: apiKey,
+        api_type: apiType,
+        integration_status: 'active'
+      };
+      
+      // Add API secret if provided
+      if (apiSecret) {
+        apiConfig.api_secret = apiSecret;
+      }
+      
       // Use 'any' to bypass TypeScript errors
       const { data, error } = await (supabase
         .from('api_configurations')
-        .insert({
-          provider,
-          api_key: apiKey,
-          api_type: apiType,
-          integration_status: 'active'
-        }) as any);
+        .insert(apiConfig) as any);
         
       if (error) throw error;
       
@@ -93,6 +103,7 @@ const ApiIntegrations = () => {
       fetchApiConfigs();
       setProvider('');
       setApiKey('');
+      setApiSecret('');
       setIsAdding(false);
     } catch (error: any) {
       console.error('Error adding API configuration:', error);
@@ -140,6 +151,9 @@ const ApiIntegrations = () => {
     (activeTab === 'domain' && !config.api_type)
   );
   
+  // Check if we have any active integrations
+  const hasActiveIntegrations = configs.some(config => config.integration_status === 'active');
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -154,6 +168,20 @@ const ApiIntegrations = () => {
           </Button>
         )}
       </div>
+
+      {hasActiveIntegrations && (
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-md border border-green-200 dark:border-green-900/30">
+          <div className="flex items-start">
+            <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-3 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-green-800 dark:text-green-400">API Integration Active</h3>
+              <p className="text-sm text-green-700 dark:text-green-500 mt-1">
+                Your API integration is active. Your platform is ready to sell domains and hosting services.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Tabs defaultValue="domain" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
@@ -171,12 +199,25 @@ const ApiIntegrations = () => {
               <CardContent className="pt-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="provider">Provider Name</Label>
-                  <Input 
-                    id="provider"
-                    placeholder="e.g. GoDaddy, Namecheap, etc."
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                  />
+                  <Select onValueChange={setProvider} value={provider}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select domain registrar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GoDaddy">GoDaddy</SelectItem>
+                      <SelectItem value="Namecheap">Namecheap</SelectItem>
+                      <SelectItem value="ResellerClub">ResellerClub</SelectItem>
+                      <SelectItem value="NameSilo">NameSilo</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {provider === 'Other' && (
+                    <Input 
+                      className="mt-2" 
+                      placeholder="Enter provider name" 
+                      onChange={(e) => setProvider(e.target.value)}
+                    />
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -190,6 +231,20 @@ const ApiIntegrations = () => {
                   />
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="api-secret">API Secret (if required)</Label>
+                  <Input 
+                    id="api-secret"
+                    type="password"
+                    placeholder="Enter API secret"
+                    value={apiSecret}
+                    onChange={(e) => setApiSecret(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Some providers require both an API key and secret. Please refer to your provider's documentation.
+                  </p>
+                </div>
+                
                 <input type="hidden" value="domain" onChange={() => setApiType("domain")} />
                 
                 <div className="flex justify-end gap-2">
@@ -199,12 +254,16 @@ const ApiIntegrations = () => {
                       setIsAdding(false);
                       setProvider('');
                       setApiKey('');
+                      setApiSecret('');
                     }}
                   >
                     Cancel
                   </Button>
                   <Button 
-                    onClick={handleAddConfig}
+                    onClick={() => {
+                      setApiType("domain");
+                      handleAddConfig();
+                    }}
                     disabled={isSaving}
                   >
                     {isSaving ? 'Saving...' : 'Save Integration'}
@@ -223,7 +282,7 @@ const ApiIntegrations = () => {
               <CardContent className="pt-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="provider">Hosting Provider</Label>
-                  <Select onValueChange={setProvider}>
+                  <Select onValueChange={setProvider} value={provider}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select hosting provider" />
                     </SelectTrigger>
@@ -257,6 +316,20 @@ const ApiIntegrations = () => {
                   />
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="api-secret">API Secret/Password (if required)</Label>
+                  <Input 
+                    id="api-secret"
+                    type="password"
+                    placeholder="Enter API secret or password"
+                    value={apiSecret}
+                    onChange={(e) => setApiSecret(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Hosting control panels like cPanel WHM may require additional credentials.
+                  </p>
+                </div>
+                
                 <input type="hidden" value="hosting" onChange={() => setApiType("hosting")} />
                 
                 <div className="flex justify-end gap-2">
@@ -266,6 +339,7 @@ const ApiIntegrations = () => {
                       setIsAdding(false);
                       setProvider('');
                       setApiKey('');
+                      setApiSecret('');
                     }}
                   >
                     Cancel
@@ -333,6 +407,11 @@ const renderConfigsList = (configs: APIConfig[], loading: boolean, handleRemoveC
                 <p className="text-sm text-muted-foreground mt-1">
                   API Key: •••••••••{config.api_key.slice(-4)}
                 </p>
+                {config.api_secret && (
+                  <p className="text-sm text-muted-foreground">
+                    API Secret: •••••••••{config.api_secret.slice(-4)}
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">
                   Added on {new Date(config.created_at).toLocaleDateString()}
                 </p>
