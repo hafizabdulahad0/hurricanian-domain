@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -58,6 +58,20 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const { isAdmin, loading } = useIsAdmin();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Use effect to handle redirection and toast
+  useEffect(() => {
+    // Only show toast and redirect if loading is complete and user is not admin
+    if (!loading && (!isAdmin || !user)) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access this page.",
+        variant: "destructive",
+      });
+      navigate("/", { replace: true });
+    }
+  }, [loading, isAdmin, user, toast, navigate]);
 
   // If still loading admin status, show loading state
   if (loading) {
@@ -72,14 +86,9 @@ const AdminDashboard = () => {
     );
   }
 
-  // If not admin or not logged in, redirect to home
+  // If not admin or not logged in, render nothing as the redirect will happen in useEffect
   if (!isAdmin || !user) {
-    toast({
-      title: "Access Denied",
-      description: "You don't have permission to access this page.",
-      variant: "destructive",
-    });
-    return <Navigate to="/" replace />;
+    return null;
   }
 
   return (
