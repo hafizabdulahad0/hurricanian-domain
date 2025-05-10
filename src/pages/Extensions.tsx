@@ -173,7 +173,7 @@ const Extensions = () => {
           </div>
         </div>
         
-        <div className="mt-12 bg-domainGray p-8 rounded-lg">
+        <div className="mt-12 p-8 rounded-lg bg-inherit">
           <h2 className="text-2xl font-bold mb-4">Why Choose a New Domain Extension?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
