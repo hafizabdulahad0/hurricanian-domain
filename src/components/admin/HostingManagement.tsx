@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ interface APIConfig {
   api_key: string;
   api_type?: string | null; // Make this optional
   integration_status: string | null;
-  created_at?: string; // These fields might be present but not required for our component
+  created_at?: string; 
   updated_at?: string;
 }
 
@@ -31,16 +32,17 @@ const HostingManagement = () => {
 
   const fetchHostingApis = async () => {
     try {
-      // Explicitly type the response to avoid deep instantiation issues
-      const { data, error } = await supabase
+      // Avoid type instantiation issues by using type assertion after fetch
+      const response = await supabase
         .from('api_configurations')
         .select('*')
         .eq('api_type', 'hosting');
         
-      if (error) throw error;
+      if (response.error) throw response.error;
       
-      // First cast to unknown, then to our interface type to avoid type mismatch
-      setHostingApis((data || []) as unknown as APIConfig[]);
+      // Cast the data to our interface type after we fetch it
+      const apiData = response.data || [];
+      setHostingApis(apiData as APIConfig[]);
     } catch (error: any) {
       console.error('Error fetching hosting APIs:', error);
       toast({
