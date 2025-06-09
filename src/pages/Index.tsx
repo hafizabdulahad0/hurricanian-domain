@@ -1,3 +1,4 @@
+
 import Layout from '@/components/layout/Layout';
 import DomainSearch from '@/components/DomainSearch';
 import ServiceCard from '@/components/ServiceCard';
@@ -26,7 +27,7 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-purpleTheme-primary/10 to-background py-20">
+      <section className="relative bg-gradient-to-b from-primary/10 to-background py-20">
         <div className="domain-container">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
@@ -41,23 +42,23 @@ const Index = () => {
             
             <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center">
-                <span className="font-semibold text-purpleTheme-primary mr-2">.com</span>
+                <span className="font-semibold text-primary mr-2">.com</span>
                 <span>$9.99/yr</span>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold text-purpleTheme-primary mr-2">.org</span>
+                <span className="font-semibold text-primary mr-2">.org</span>
                 <span>$12.99/yr</span>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold text-purpleTheme-primary mr-2">.net</span>
+                <span className="font-semibold text-primary mr-2">.net</span>
                 <span>$11.99/yr</span>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold text-purpleTheme-primary mr-2">.io</span>
+                <span className="font-semibold text-primary mr-2">.io</span>
                 <span>$39.99/yr</span>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold text-purpleTheme-primary mr-2">.co</span>
+                <span className="font-semibold text-primary mr-2">.co</span>
                 <span>$24.99/yr</span>
               </div>
             </div>
@@ -65,9 +66,9 @@ const Index = () => {
         </div>
         
         {/* Background Elements */}
-        <div className="absolute top-20 left-10 w-24 h-24 bg-purpleTheme-primary/20 rounded-full opacity-50 animate-float"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-purpleTheme-primary/20 rounded-full opacity-50 animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-purpleTheme-primary/20 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-24 h-24 bg-primary/20 rounded-full opacity-50 animate-float"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-primary/20 rounded-full opacity-50 animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-40 right-20 w-16 h-16 bg-primary/20 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
       </section>
       
       {/* Domain Services */}
@@ -86,48 +87,48 @@ const Index = () => {
               description="Find available domain names for your website or business."
               icon={Search}
               link="/domain-search"
-              color="bg-purpleTheme-primary"
+              color="bg-primary"
             />
             <ServiceCard
               title="Transfer Your Domain"
               description="Move your existing domain to our platform for better service."
               icon={ArrowRight}
               link="/transfer"
-              color="bg-purpleTheme-secondary"
+              color="bg-secondary"
             />
             <ServiceCard
               title="WHOIS Lookup"
               description="Check domain ownership information and registration details."
               icon={FileText}
               link="/whois"
-              color="bg-purpleTheme-tertiary"
+              color="bg-accent"
             />
             <ServiceCard
               title="Domain Appraisal"
               description="Get an estimated value for any domain name."
               icon={FileSearch}
               link="/appraise"
-              color="bg-purpleTheme-secondary"
+              color="bg-secondary"
             />
             <ServiceCard
               title="AI Domain Generator"
               description="Let our AI find the perfect domain name for your business."
               icon={Wand2}
               link="/domain-ai"
-              color="bg-purpleTheme-primary"
+              color="bg-primary"
             />
             <ServiceCard
               title="Domain Broker Service"
               description="We'll negotiate the purchase of premium domains on your behalf."
               icon={Briefcase}
               link="/broker"
-              color="bg-purpleTheme-tertiary"
+              color="bg-accent"
             />
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
-              <Link to="/domain-search" className="text-white">View All Services</Link>
+            <Button className="bg-primary hover:bg-secondary button-hover">
+              <Link to="/domain-search" className="text-primary-foreground">View All Services</Link>
             </Button>
           </div>
         </div>
@@ -149,27 +150,27 @@ const Index = () => {
               description="Affordable hosting perfect for small websites and personal blogs."
               icon={Server}
               link="/hosting"
-              color="bg-purpleTheme-primary"
+              color="bg-primary"
             />
             <ServiceCard
               title="Cloud Hosting"
               description="Scalable resources for growing websites with variable traffic."
               icon={Cloud}
               link="/hosting"
-              color="bg-purpleTheme-secondary"
+              color="bg-secondary"
             />
             <ServiceCard
               title="Dedicated Servers"
               description="Maximum performance and control for high-traffic websites."
               icon={Database}
               link="/hosting"
-              color="bg-purpleTheme-tertiary"
+              color="bg-accent"
             />
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
-              <Link to="/hosting" className="text-white">View All Hosting Plans</Link>
+            <Button className="bg-primary hover:bg-secondary button-hover">
+              <Link to="/hosting" className="text-primary-foreground">View All Hosting Plans</Link>
             </Button>
           </div>
         </div>
@@ -194,10 +195,10 @@ const Index = () => {
               { name: 'aitools.org', price: '$7,500' },
               { name: 'cryptomarket.io', price: '$12,000' },
             ].map((domain, index) => (
-              <div key={index} className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+              <div key={index} className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow hover-lift">
                 <h3 className="text-xl font-semibold text-card-foreground mb-2">{domain.name}</h3>
-                <p className="text-2xl font-bold text-purpleTheme-primary">{domain.price}</p>
-                <Button variant="outline" className="mt-4 w-full border-purpleTheme-primary text-purpleTheme-primary hover:bg-purpleTheme-primary hover:text-white">
+                <p className="text-2xl font-bold text-primary">{domain.price}</p>
+                <Button variant="outline" className="mt-4 w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground button-hover">
                   Make Offer
                 </Button>
               </div>
@@ -205,8 +206,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
-              <Link to="/premium" className="text-white">View Premium Domains</Link>
+            <Button className="bg-primary hover:bg-secondary button-hover">
+              <Link to="/premium" className="text-primary-foreground">View Premium Domains</Link>
             </Button>
           </div>
         </div>
@@ -237,17 +238,17 @@ const Index = () => {
             ].map((item, index) => (
               <div 
                 key={index} 
-                className={`border rounded-lg p-4 text-center 
-                  ${item.popular ? 'border-purpleTheme-primary bg-purpleTheme-primary/10' : 'border-border bg-background'}
+                className={`border rounded-lg p-4 text-center hover-lift
+                  ${item.popular ? 'border-primary bg-primary/10' : 'border-border bg-background'}
                   hover:shadow-md transition-shadow`}
               >
                 <p className="text-xl font-bold text-foreground">{item.ext}</p>
-                <p className={`text-sm ${item.popular ? 'text-purpleTheme-primary' : 'text-muted-foreground'}`}>
+                <p className={`text-sm ${item.popular ? 'text-primary' : 'text-muted-foreground'}`}>
                   {item.price}
                 </p>
                 {item.popular && (
                   <div className="mt-2">
-                    <Badge className="bg-purpleTheme-primary text-white">Popular</Badge>
+                    <Badge className="bg-primary text-primary-foreground">Popular</Badge>
                   </div>
                 )}
               </div>
@@ -255,8 +256,8 @@ const Index = () => {
           </div>
           
           <div className="mt-12 text-center">
-            <Button className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
-              <Link to="/extensions" className="text-white">View All Extensions</Link>
+            <Button className="bg-primary hover:bg-secondary button-hover">
+              <Link to="/extensions" className="text-primary-foreground">View All Extensions</Link>
             </Button>
           </div>
         </div>
@@ -278,28 +279,28 @@ const Index = () => {
               description="Keep your personal information private and protected from spammers."
               icon={ShieldCheck}
               link="/privacy"
-              color="bg-purpleTheme-primary"
+              color="bg-primary"
             />
             <ServiceCard
               title="Expiration Protection"
               description="Never lose your domain with automatic renewal protection."
               icon={Clock}
               link="/expiration"
-              color="bg-purpleTheme-secondary"
+              color="bg-secondary"
             />
             <ServiceCard
               title="SSL Certificates"
               description="Secure your website with industry-standard encryption."
               icon={ShieldCheck}
               link="/ssl"
-              color="bg-purpleTheme-tertiary"
+              color="bg-accent"
             />
             <ServiceCard
               title="SiteLock Security"
               description="Protect your website from malware and cyber attacks."
               icon={ShieldCheck}
               link="/sitelock"
-              color="bg-purpleTheme-secondary"
+              color="bg-secondary"
             />
           </div>
         </div>
@@ -370,14 +371,14 @@ const Index = () => {
       </section>
       
       {/* Call to Action */}
-      <section className="py-16 bg-purpleTheme-primary text-white">
+      <section className="py-16 bg-primary text-primary-foreground">
         <div className="domain-container">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold mb-4">Ready to Secure Your Domain?</h2>
             <p className="text-xl mb-8">
               Start your online journey today with a domain name that perfectly represents your brand.
             </p>
-            <Button className="bg-white text-purpleTheme-primary hover:bg-gray-100" size="lg">
+            <Button className="bg-primary-foreground text-primary hover:bg-secondary-foreground button-hover" size="lg">
               <Link to="/domain-search">Find Your Domain Now</Link>
             </Button>
           </div>
@@ -412,8 +413,8 @@ const Index = () => {
                 role: "Marketing Director"
               }
             ].map((testimonial, index) => (
-              <div key={index} className="bg-muted rounded-lg p-6">
-                <div className="text-purpleTheme-primary mb-4">
+              <div key={index} className="bg-muted rounded-lg p-6 hover-lift">
+                <div className="text-primary mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="inline-block h-5 w-5 fill-current" />
                   ))}
