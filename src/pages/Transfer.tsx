@@ -1,35 +1,18 @@
-
 import { useState } from 'react';
 import ServicePage from '@/components/ServicePage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowRight, Check } from 'lucide-react';
-
 const Transfer = () => {
   const [domain, setDomain] = useState('');
-  
-  return (
-    <ServicePage
-      title="Transfer Your Domain"
-      description="Move your existing domain to our platform for better service and management."
-      ctaTitle="Ready to Transfer?"
-      ctaDescription="Our support team is here to help you every step of the way."
-      ctaButtonText="Start Transfer"
-      ctaButtonLink="/domain-search"
-    >
+  return <ServicePage title="Transfer Your Domain" description="Move your existing domain to our platform for better service and management." ctaTitle="Ready to Transfer?" ctaDescription="Our support team is here to help you every step of the way." ctaButtonText="Start Transfer" ctaButtonLink="/domain-search">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 mb-12">
+        <div className="p-8 rounded-lg shadow-sm border border-gray-100 mb-12 bg-inherit">
           <h2 className="text-2xl font-bold mb-6">Enter your domain name</h2>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <Input
-              type="text"
-              value={domain}
-              onChange={(e) => setDomain(e.target.value)}
-              placeholder="yourdomain.com"
-              className="flex-1"
-            />
+            <Input type="text" value={domain} onChange={e => setDomain(e.target.value)} placeholder="yourdomain.com" className="flex-1" />
             <Button className="bg-domainBlue hover:bg-domainBlue-dark">
               Check Transferability
             </Button>
@@ -86,7 +69,7 @@ const Transfer = () => {
           </Card>
         </div>
         
-        <div className="bg-domainGray p-8 rounded-lg">
+        <div className="p-8 rounded-lg bg-inherit">
           <h2 className="text-2xl font-bold mb-6">Bulk Domain Transfers</h2>
           <p className="text-gray-600 mb-4">
             Need to transfer multiple domains? Our bulk transfer service makes it easy to move
@@ -97,8 +80,6 @@ const Transfer = () => {
           </Button>
         </div>
       </div>
-    </ServicePage>
-  );
+    </ServicePage>;
 };
-
 export default Transfer;
