@@ -25,7 +25,7 @@ const Appraise = () => {
       ctaButtonLink="/broker"
     >
       <div className="max-w-3xl mx-auto">
-        <Card className="p-8 mb-8">
+        <Card className="p-8 mb-8 hover-lift">
           <h2 className="text-2xl font-bold mb-6">Domain Appraisal Tool</h2>
           
           <form onSubmit={handleAppraise}>
@@ -38,7 +38,7 @@ const Appraise = () => {
                 className="flex-1"
                 required
               />
-              <Button type="submit" className="bg-domainBlue hover:bg-domainBlue-dark">
+              <Button type="submit" className="bg-primary hover:bg-primary/90 button-hover">
                 <FileSearch className="mr-2 h-4 w-4" />
                 <span>Appraise</span>
               </Button>
@@ -46,14 +46,14 @@ const Appraise = () => {
           </form>
           
           {appraised && (
-            <div className="mt-8 p-6 border rounded-lg bg-gray-50">
+            <div className="mt-8 p-6 border rounded-lg bg-gray-50 animate-fade-in">
               <div className="flex items-center mb-4">
-                <DollarSign className="h-6 w-6 text-domainBlue" />
+                <DollarSign className="h-6 w-6 text-primary" />
                 <h3 className="ml-2 text-xl font-semibold">Appraisal Results for {domain}</h3>
               </div>
               
               <div className="mt-4 text-center">
-                <div className="text-3xl font-bold text-domainBlue mb-2">$4,500 - $6,800</div>
+                <div className="text-3xl font-bold text-primary mb-2">$4,500 - $6,800</div>
                 <p className="text-gray-600">Estimated Market Value</p>
               </div>
               

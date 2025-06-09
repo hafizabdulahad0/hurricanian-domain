@@ -72,7 +72,7 @@ const DomainSearches = () => {
             </p>
           </div>
           
-          <Button asChild className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+          <Button asChild className="bg-primary hover:bg-primary/90 button-hover">
             <Link to="/domain-search">
               <Search className="mr-2 h-4 w-4" />
               Search New Domain
@@ -90,13 +90,13 @@ const DomainSearches = () => {
           <CardContent>
             {loading ? (
               <div className="flex justify-center items-center py-8">
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
                 <span>Loading search history...</span>
               </div>
             ) : searches.length === 0 ? (
               <div className="text-center py-10">
                 <p className="text-lg text-muted-foreground mb-4">You haven't searched for any domains yet</p>
-                <Button asChild className="bg-purpleTheme-primary hover:bg-purpleTheme-secondary">
+                <Button asChild className="bg-primary hover:bg-primary/90 button-hover">
                   <Link to="/domain-search">
                     Try searching for a domain
                   </Link>
@@ -115,7 +115,7 @@ const DomainSearches = () => {
                   </thead>
                   <tbody>
                     {searches.map((search) => (
-                      <tr key={search.id} className="border-b">
+                      <tr key={search.id} className="border-b hover-fade">
                         <td className="py-3 px-4 font-medium">
                           {search.domain_name}{search.extension}
                         </td>
@@ -138,7 +138,7 @@ const DomainSearches = () => {
                           {formatDate(search.search_date)}
                         </td>
                         <td className="py-3 px-4">
-                          <Button asChild variant="outline" size="sm">
+                          <Button asChild variant="outline" size="sm" className="hover-lift">
                             <Link to={`/domain-search?domain=${search.domain_name}`}>
                               Search Again
                             </Link>
