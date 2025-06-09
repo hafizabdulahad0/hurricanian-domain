@@ -76,8 +76,8 @@ const Navbar = () => {
               ))}
             </div>
             
-            {/* Right side items */}
-            <div className="flex items-center gap-4">
+            {/* Right side items - Desktop only */}
+            <div className="hidden lg:flex items-center gap-4">
               <Link to="/cart" className="relative hover-lift">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
@@ -119,12 +119,25 @@ const Navbar = () => {
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 <span className="sr-only">Toggle theme</span>
               </Button>
+            </div>
+
+            {/* Mobile right side items */}
+            <div className="flex lg:hidden items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="hover-lift"
+              >
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
               
               {/* Mobile menu button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden hover-lift"
+                className="hover-lift"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -135,7 +148,7 @@ const Navbar = () => {
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
             <div className="lg:hidden mt-4 border-t pt-4 animate-slide-up">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
                 {navigationItems.map((item) => (
                   <Link
                     key={item.to}
@@ -147,6 +160,32 @@ const Navbar = () => {
                     <span className="text-sm">{item.label}</span>
                   </Link>
                 ))}
+              </div>
+              
+              {/* Mobile menu additional items */}
+              <div className="border-t pt-4 space-y-2">
+                <Link 
+                  to="/cart" 
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-accent/10 transition-all duration-300 hover-lift w-full"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <span className="text-sm">Cart</span>
+                  {totalItems > 0 && (
+                    <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
+                </Link>
+                
+                <Link 
+                  to="/dashboard" 
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-accent/10 transition-all duration-300 hover-lift w-full"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-4 w-4" />
+                  <span className="text-sm">Dashboard</span>
+                </Link>
               </div>
             </div>
           )}
