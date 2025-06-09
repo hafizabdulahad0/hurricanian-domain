@@ -62,29 +62,43 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                // Semi Dark Purple theme colors
-                purpleTheme: {
-                    primary: '#9b87f5',
-                    secondary: '#7E69AB',
-                    tertiary: '#6E59A5',
-                    dark: '#1A1F2C',
-                    neutral: '#8E9196',
-                    charcoal: '#221F26',
-                    darkGray: '#333333',
-                    black: '#000000e6',
+                // Cool Blue Green theme colors
+                coolBlue: {
+                    DEFAULT: '#0891B2',
+                    50: '#F0FDFF',
+                    100: '#CCFBF1',
+                    200: '#99F6E4',
+                    300: '#5EEAD4',
+                    400: '#2DD4BF',
+                    500: '#14B8A6',
+                    600: '#0891B2',
+                    700: '#0E7490',
+                    800: '#155E75',
+                    900: '#164E63',
                 },
-                // Keeping the domain colors for compatibility
+                // Updated domain colors to match theme
                 domainBlue: {
-                    DEFAULT: '#0989e3',
-                    dark: '#0e5d8b',
+                    DEFAULT: '#0891B2',
+                    dark: '#0E7490',
                 },
                 domainGreen: {
-                    DEFAULT: '#34da77',
-                    light: '#5fe99a',
+                    DEFAULT: '#14B8A6',
+                    light: '#2DD4BF',
                 },
                 domainGray: {
                     DEFAULT: '#f5f7fa',
                     dark: '#e1e5ea',
+                },
+                // Keep legacy purple theme for compatibility
+                purpleTheme: {
+                    primary: '#0891B2',
+                    secondary: '#14B8A6',
+                    tertiary: '#2DD4BF',
+                    dark: '#164E63',
+                    neutral: '#8E9196',
+                    charcoal: '#221F26',
+                    darkGray: '#333333',
+                    black: '#000000e6',
                 },
 			},
 			borderRadius: {
@@ -112,12 +126,27 @@ export default {
                 'float': {
                     '0%, 100%': { transform: 'translateY(0)' },
                     '50%': { transform: 'translateY(-10px)' }
+                },
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' }
+                },
+                'slide-up': {
+                    '0%': { transform: 'translateY(20px)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' }
+                },
+                'scale-in': {
+                    '0%': { transform: 'scale(0.95)', opacity: '0' },
+                    '100%': { transform: 'scale(1)', opacity: '1' }
                 }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-                'float': 'float 3s ease-in-out infinite'
+                'float': 'float 3s ease-in-out infinite',
+                'fade-in': 'fade-in 0.5s ease-out',
+                'slide-up': 'slide-up 0.5s ease-out',
+                'scale-in': 'scale-in 0.3s ease-out'
 			}
 		}
 	},

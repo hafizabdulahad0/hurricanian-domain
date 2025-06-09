@@ -95,7 +95,7 @@ const DomainSearch = () => {
   return (
     <div className="w-full max-w-3xl mx-auto">
       {error && (
-        <Alert className="mb-4 bg-red-50 border-red-200">
+        <Alert className="mb-4 bg-red-50 border-red-200 animate-slide-up">
           <AlertCircle className="h-4 w-4 text-red-500" />
           <AlertDescription className="text-red-700">
             {error}
@@ -110,12 +110,12 @@ const DomainSearch = () => {
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             placeholder="Find your perfect domain name"
-            className="rounded-r-none py-6 text-lg border-r-0 pr-4"
+            className="rounded-r-none py-6 text-lg border-r-0 pr-4 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 hover-glow transition-all duration-300"
             required
           />
           <Button 
             type="submit" 
-            className="rounded-l-none bg-purpleTheme-primary hover:bg-purpleTheme-secondary px-4 h-auto"
+            className="rounded-l-none bg-primary hover:bg-accent px-4 h-auto button-hover"
             disabled={isSearching}
           >
             {isSearching ? (
@@ -134,21 +134,22 @@ const DomainSearch = () => {
         
         <div className="mt-4 flex flex-wrap gap-3">
           {Object.keys(extensionChecks).map((ext) => (
-            <div key={ext} className="flex items-center space-x-2">
+            <div key={ext} className="flex items-center space-x-2 hover-lift">
               <Checkbox 
                 id={`ext-${ext}`}
                 checked={extensionChecks[ext as keyof typeof extensionChecks]}
                 onCheckedChange={() => handleExtensionToggle(ext)}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
               <label
                 htmlFor={`ext-${ext}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
                 {ext}
               </label>
             </div>
           ))}
-          <div className="text-sm text-purpleTheme-primary hover:underline cursor-pointer">
+          <div className="text-sm text-primary hover:text-accent cursor-pointer hover-fade transition-colors duration-300">
             + More options
           </div>
         </div>
