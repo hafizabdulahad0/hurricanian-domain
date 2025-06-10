@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import DomainExtensionsModal from './DomainExtensionsModal';
 
 const DomainSearch = () => {
   const [domain, setDomain] = useState('');
@@ -20,6 +20,7 @@ const DomainSearch = () => {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showExtensionsModal, setShowExtensionsModal] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -91,6 +92,10 @@ const DomainSearch = () => {
       [ext]: !prev[ext]
     }));
   };
+
+  const handleMoreOptionsClick = () => {
+    setShowExtensionsModal(true);
+  };
   
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -149,11 +154,24 @@ const DomainSearch = () => {
               </label>
             </div>
           ))}
-          <div className="text-sm text-primary hover:text-accent cursor-pointer hover-fade transition-colors duration-300">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleMoreOptionsClick}
+            className="text-sm text-primary hover:text-accent cursor-pointer hover-fade transition-colors duration-300 p-0 h-auto"
+          >
             + More options
-          </div>
+          </Button>
         </div>
       </form>
+
+      <DomainExtensionsModal
+        isOpen={showExtensionsModal}
+        onClose={() => setShowExtensionsModal(false)}
+        selectedExtensions={extensionChecks}
+        onExtensionToggle={handleExtensionToggle}
+      />
     </div>
   );
 };
