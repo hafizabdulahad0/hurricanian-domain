@@ -17,7 +17,7 @@ const CreateAuction = () => {
   const [formData, setFormData] = useState({
     domainName: '',
     startingBid: '',
-    durationDays: '7', // Default 7 days
+    durationDays: '7',
     description: ''
   });
   
@@ -25,13 +25,11 @@ const CreateAuction = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   
-  // Handle duration select change
   const handleDurationChange = (value: string) => {
     setFormData((prev) => ({ ...prev, durationDays: value }));
   };
@@ -72,21 +70,20 @@ const CreateAuction = () => {
     setLoading(true);
     
     try {
-      console.log('Creating auction with data:', {
-        domainName: formData.domainName,
+      const auctionData = {
+        domainName: formData.domainName.trim(),
         startingBid: startingBid,
         durationDays: parseInt(formData.durationDays),
-        description: formData.description
-      });
+        description: formData.description.trim()
+      };
+      
+      console.log('Creating auction with data:', auctionData);
       
       // Call the edge function to create the auction
       const { data, error } = await supabase.functions.invoke('domain-auction', {
         body: {
           action: 'create',
-          domainName: formData.domainName,
-          startingBid: startingBid,
-          durationDays: parseInt(formData.durationDays),
-          description: formData.description
+          ...auctionData
         }
       });
       
@@ -101,6 +98,14 @@ const CreateAuction = () => {
       toast({
         title: 'Auction created',
         description: `Your auction for ${formData.domainName} has been created successfully.`
+      });
+      
+      // Reset form
+      setFormData({
+        domainName: '',
+        startingBid: '',
+        durationDays: '7',
+        description: ''
       });
       
       // Redirect to domain auction page

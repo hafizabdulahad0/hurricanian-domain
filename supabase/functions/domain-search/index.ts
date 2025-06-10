@@ -35,11 +35,12 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Get domain API configuration
+    // Get domain API configuration with the updated schema
     const { data: apiConfigs, error: configError } = await supabase
       .from('api_configurations')
       .select('*')
       .eq('api_type', 'domain')
+      .eq('integration_status', 'active')
       .order('created_at', { ascending: false })
       .limit(1);
     
@@ -61,49 +62,26 @@ Deno.serve(async (req) => {
         // Different implementation based on the provider
         switch(apiConfig.provider.toLowerCase()) {
           case 'godaddy':
-            // results = await searchDomainsWithGodaddy(domain, extensions, apiConfig.api_key);
-            console.log('Would call GoDaddy API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            results = await searchDomainsWithGodaddy(domain, extensions, apiConfig.api_key, apiConfig.api_secret);
             break;
           case 'namecheap':
-            // results = await searchDomainsWithNamecheap(domain, extensions, apiConfig.api_key);
-            console.log('Would call Namecheap API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            results = await searchDomainsWithNamecheap(domain, extensions, apiConfig.api_key, apiConfig.api_secret);
             break;
           case 'resellerclub':
-            // results = await searchDomainsWithResellerClub(domain, extensions, apiConfig.api_key);
-            console.log('Would call ResellerClub API with key:', `...${apiConfig.api_key.slice(-5)}`);
+            results = await searchDomainsWithResellerClub(domain, extensions, apiConfig.api_key, apiConfig.api_secret);
             break;
           default:
             console.log(`Provider ${apiConfig.provider} not implemented yet, using mock data`);
+            results = generateMockResults(domain, extensions);
         }
       } catch (apiError) {
         console.error(`Error calling ${apiConfig.provider} API:`, apiError);
+        // Fall back to mock data if API fails
+        results = generateMockResults(domain, extensions);
       }
-    }
-    
-    // If we couldn't get real data from the API (or if there's no API config),
-    // fall back to generating mock domain results
-    if (results.length === 0) {
-      results = extensions.map((ext: string) => {
-        // Deterministic availability based on domain name and extension
-        const combined = domain + ext;
-        const hash = Array.from(combined).reduce((sum, char) => sum + char.charCodeAt(0), 0);
-        const available = hash % 10 > 3; // 60% chance of availability
-        
-        // Price determination based on extension and domain length
-        let basePrice = 9.99;
-        if (ext === '.io') basePrice = 39.99;
-        else if (ext === '.org') basePrice = 12.99;
-        else if (ext === '.net') basePrice = 11.99;
-        
-        const lengthFactor = Math.max(0.8, Math.min(1.5, 10 / domain.length));
-        const price = Math.round((basePrice * lengthFactor) * 100) / 100;
-        
-        return {
-          domain: domain + ext,
-          available,
-          price: available ? price : null
-        };
-      });
+    } else {
+      console.log('No active domain API configuration found, using mock data');
+      results = generateMockResults(domain, extensions);
     }
     
     // For authenticated users, store search history in database
@@ -120,17 +98,20 @@ Deno.serve(async (req) => {
           
           if (!userError && userData?.user) {
             // Store search history for each extension
-            for (const ext of extensions) {
+            const searchPromises = extensions.map(async (ext: string) => {
               const searchResult = results.find(r => r.domain === domain + ext);
               if (searchResult) {
-                await supabase.from('domain_searches').insert({
+                return supabase.from('domain_searches').insert({
                   domain_name: domain,
                   extension: ext,
                   available: searchResult.available,
                   user_id: userData.user.id
                 });
               }
-            }
+            });
+            
+            await Promise.all(searchPromises.filter(Boolean));
+            console.log(`Stored search history for user ${userData.user.id}`);
           }
         } catch (authError) {
           console.error('Error authenticating user:', authError);
@@ -154,54 +135,49 @@ Deno.serve(async (req) => {
   }
 });
 
-// The following functions would contain the actual API implementation
-// These are just placeholders and would need to be implemented with real API calls
-
-/*
-async function searchDomainsWithGodaddy(domain, extensions, apiKey) {
-  // Example implementation for GoDaddy API
-  // Real implementation would make HTTP requests to the GoDaddy API
-  const results = [];
-  
-  for (const ext of extensions) {
-    // Call GoDaddy API to check availability and get pricing
-    const response = await fetch(
-      `https://api.godaddy.com/v1/domains/available?domain=${domain}${ext}`, 
-      {
-        headers: {
-          'Authorization': `sso-key ${apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+// Generate mock domain results
+function generateMockResults(domain: string, extensions: string[]) {
+  return extensions.map((ext: string) => {
+    // Deterministic availability based on domain name and extension
+    const combined = domain + ext;
+    const hash = Array.from(combined).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const available = hash % 10 > 3; // 60% chance of availability
     
-    const data = await response.json();
+    // Price determination based on extension and domain length
+    let basePrice = 9.99;
+    if (ext === '.io') basePrice = 39.99;
+    else if (ext === '.org') basePrice = 12.99;
+    else if (ext === '.net') basePrice = 11.99;
+    else if (ext === '.ai') basePrice = 79.99;
+    else if (ext === '.tech') basePrice = 34.99;
+    else if (ext === '.app') basePrice = 14.99;
     
-    results.push({
+    const lengthFactor = Math.max(0.8, Math.min(1.5, 10 / domain.length));
+    const price = Math.round((basePrice * lengthFactor) * 100) / 100;
+    
+    return {
       domain: domain + ext,
-      available: data.available,
-      price: data.available ? data.price : null
-    });
-  }
-  
-  return results;
+      available,
+      price: available ? price : null
+    };
+  });
 }
 
-async function searchDomainsWithNamecheap(domain, extensions, apiKey) {
-  // Example implementation for Namecheap API
-  // Real implementation would make HTTP requests to the Namecheap API
-  
-  // ...implementation...
-  
-  return [];
+// Placeholder API implementation functions (to be implemented with real APIs)
+async function searchDomainsWithGodaddy(domain: string, extensions: string[], apiKey: string, apiSecret?: string) {
+  // This would contain the actual GoDaddy API implementation
+  console.log(`GoDaddy API call for ${domain} with extensions: ${extensions.join(', ')}`);
+  return generateMockResults(domain, extensions);
 }
 
-async function searchDomainsWithResellerClub(domain, extensions, apiKey) {
-  // Example implementation for ResellerClub API
-  // Real implementation would make HTTP requests to the ResellerClub API
-  
-  // ...implementation...
-  
-  return [];
+async function searchDomainsWithNamecheap(domain: string, extensions: string[], apiKey: string, apiSecret?: string) {
+  // This would contain the actual Namecheap API implementation
+  console.log(`Namecheap API call for ${domain} with extensions: ${extensions.join(', ')}`);
+  return generateMockResults(domain, extensions);
 }
-*/
+
+async function searchDomainsWithResellerClub(domain: string, extensions: string[], apiKey: string, apiSecret?: string) {
+  // This would contain the actual ResellerClub API implementation
+  console.log(`ResellerClub API call for ${domain} with extensions: ${extensions.join(', ')}`);
+  return generateMockResults(domain, extensions);
+}

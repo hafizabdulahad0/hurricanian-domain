@@ -30,6 +30,8 @@ export type Database = {
       api_configurations: {
         Row: {
           api_key: string
+          api_secret: string | null
+          api_type: string
           created_at: string
           id: string
           integration_status: string | null
@@ -38,6 +40,8 @@ export type Database = {
         }
         Insert: {
           api_key: string
+          api_secret?: string | null
+          api_type?: string
           created_at?: string
           id?: string
           integration_status?: string | null
@@ -46,6 +50,8 @@ export type Database = {
         }
         Update: {
           api_key?: string
+          api_secret?: string | null
+          api_type?: string
           created_at?: string
           id?: string
           integration_status?: string | null

@@ -28,7 +28,7 @@ const ApiIntegrations = () => {
   const [provider, setProvider] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
-  const [apiType, setApiType] = useState('domain'); // 'domain' or 'hosting'
+  const [apiType, setApiType] = useState('domain');
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("domain");
@@ -41,15 +41,15 @@ const ApiIntegrations = () => {
   const fetchApiConfigs = async () => {
     setLoading(true);
     try {
-      // Use 'any' to bypass TypeScript errors since the database schema is not reflected in the types
-      const { data, error } = await (supabase
+      const { data, error } = await supabase
         .from('api_configurations')
-        .select('*') as any);
+        .select('*')
+        .order('created_at', { ascending: false });
         
       if (error) throw error;
       
-      // Type-cast the data to match our expected type
       setConfigs(data as APIConfig[]);
+      console.log('Fetched API configurations:', data);
     } catch (error: any) {
       console.error('Error fetching API configurations:', error);
       toast({
@@ -74,7 +74,6 @@ const ApiIntegrations = () => {
     
     setIsSaving(true);
     try {
-      // Create the API configuration object
       const apiConfig: any = {
         provider,
         api_key: apiKey,
@@ -82,17 +81,18 @@ const ApiIntegrations = () => {
         integration_status: 'active'
       };
       
-      // Add API secret if provided
       if (apiSecret) {
         apiConfig.api_secret = apiSecret;
       }
       
-      // Use 'any' to bypass TypeScript errors
-      const { data, error } = await (supabase
+      const { data, error } = await supabase
         .from('api_configurations')
-        .insert(apiConfig) as any);
+        .insert(apiConfig)
+        .select();
         
       if (error) throw error;
+      
+      console.log('Added API configuration:', data);
       
       toast({
         title: 'Success',
@@ -119,11 +119,10 @@ const ApiIntegrations = () => {
   
   const handleRemoveConfig = async (id: string) => {
     try {
-      // Use 'any' to bypass TypeScript errors
-      const { error } = await (supabase
+      const { error } = await supabase
         .from('api_configurations')
         .delete()
-        .eq('id', id) as any);
+        .eq('id', id);
         
       if (error) throw error;
       
@@ -146,9 +145,7 @@ const ApiIntegrations = () => {
 
   // Filter configs based on active tab
   const filteredConfigs = configs.filter(config => 
-    config.api_type === activeTab || 
-    // For backward compatibility with existing records that don't have api_type
-    (activeTab === 'domain' && !config.api_type)
+    config.api_type === activeTab
   );
   
   // Check if we have any active integrations
@@ -245,8 +242,6 @@ const ApiIntegrations = () => {
                   </p>
                 </div>
                 
-                <input type="hidden" value="domain" onChange={() => setApiType("domain")} />
-                
                 <div className="flex justify-end gap-2">
                   <Button 
                     variant="outline" 
@@ -329,8 +324,6 @@ const ApiIntegrations = () => {
                     Hosting control panels like cPanel WHM may require additional credentials.
                   </p>
                 </div>
-                
-                <input type="hidden" value="hosting" onChange={() => setApiType("hosting")} />
                 
                 <div className="flex justify-end gap-2">
                   <Button 

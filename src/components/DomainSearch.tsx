@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,12 @@ const DomainSearch = () => {
       return;
     }
     
+    // Clean domain name (remove www, http, etc.)
+    const cleanDomain = domain.trim().toLowerCase()
+      .replace(/^(https?:\/\/)?(www\.)?/, '')
+      .replace(/\/$/, '')
+      .split('.')[0];
+    
     // Get selected extensions
     const selectedExtensions = Object.entries(extensionChecks)
       .filter(([_, isChecked]) => isChecked)
@@ -48,15 +55,18 @@ const DomainSearch = () => {
     }
       
     try {
+      console.log(`Searching for domain: ${cleanDomain} with extensions:`, selectedExtensions);
+      
       // Call the domain-search edge function
       const { data, error: apiError } = await supabase.functions.invoke('domain-search', {
         body: {
-          domain: domain.trim().toLowerCase(),
+          domain: cleanDomain,
           extensions: selectedExtensions
         }
       });
       
       if (apiError) {
+        console.error('API Error:', apiError);
         throw new Error(apiError.message || 'Failed to search domains');
       }
       
@@ -64,21 +74,25 @@ const DomainSearch = () => {
         throw new Error('Invalid response from search API');
       }
       
+      console.log('Search results:', data.results);
+      
       // Show success message
+      const availableCount = data.results.filter((r: any) => r.available).length;
       toast({
         title: "Search completed",
-        description: `Found ${data.results.filter((r: any) => r.available).length} available domains.`,
+        description: `Found ${availableCount} available domains out of ${data.results.length} searched.`,
       });
       
       // Navigate to search results page with the results
-      navigate(`/domain-search?query=${encodeURIComponent(domain)}&results=${encodeURIComponent(JSON.stringify(data.results))}`);
+      navigate(`/domain-search?query=${encodeURIComponent(cleanDomain)}&results=${encodeURIComponent(JSON.stringify(data.results))}`);
       
     } catch (error: any) {
       console.error('Error searching domains:', error);
-      setError(error.message || "Failed to fetch domains. Please try again later.");
+      const errorMessage = error.message || "Failed to fetch domains. Please try again later.";
+      setError(errorMessage);
       toast({
         title: "Search failed",
-        description: error.message || "An error occurred while searching for domains.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
